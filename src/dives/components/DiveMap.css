@@ -1,0 +1,5 @@
+.map-section .leaflet-container {
+  height: 500px;
+  z-index: 1;
+  border-radius: 5px;
+}

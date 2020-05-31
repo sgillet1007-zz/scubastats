@@ -1,0 +1,18 @@
+.table-section,
+.map-section,
+.stats-section {
+  width: 100%;
+}
+.map-section {
+  height: 500px;
+}
+.stats-section {
+  min-height: 150px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.table-section {
+  margin-top: 20px;
+}

@@ -1,0 +1,14 @@
+.stats-card {
+  display: inline-block;
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin: 1rem;
+}
+
+.stats-card p {
+  font-size: 12px;
+}
