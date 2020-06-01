@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react';
+import axios from 'axios';
 import Input from '../../shared/components/FormElements/Input.js';
 import Button from '../../shared/components/FormElements/Button';
 import {
@@ -50,56 +51,44 @@ const AuthForm = () => {
   const authSubmitHandler = async (e) => {
     e.preventDefault();
     if (isLoginMode) {
-      let loginResponse = null;
-      try {
-        loginResponse = await fetch('http://localhost:5000/api/v1/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: formState.inputs.email.value,
-            password: formState.inputs.password.value,
-          }),
-        });
-        let loginData;
-        if (loginResponse.status === 401) {
-          console.log('login failed - try again');
-          // TODO - reset login form
-        } else {
-          loginResponse.text().then((result) => {
-            if (result.charAt(0) === '{') {
-              loginData = { ...JSON.parse(result) };
-              localStorage.setItem('bt', loginData.token);
-              localStorage.setItem('user', loginData.user);
-              auth.login(
-                localStorage.getItem('user'),
-                localStorage.getItem('bt')
-              );
-            }
-          });
-        }
-      } catch (errorText) {
-        console.log(errorText);
-      }
-    } else {
-      try {
-        fetch('http://localhost:5000/api/v1/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: formState.inputs.name.value,
-            email: formState.inputs.email.value,
-            password: formState.inputs.password.value,
-          }),
-        });
-        // const responseData = await response;
-        // TODO - register new user
-      } catch (err) {
-        console.log(err);
-      }
+      axios
+        .post('http://localhost:5000/api/v1/auth/login', {
+          email: formState.inputs.email.value,
+          password: formState.inputs.password.value,
+        })
+        .then((response) => {
+          if (response.status === 200) {
+            const token = response.data.token;
+            const user = response.data.user;
+            localStorage.setItem('bt', token);
+            localStorage.setItem('user', user);
+            auth.login(user, token);
+          }
+        })
+        .catch(
+          (err) => console.log(`Invalid credentials.  Please try again. ${err}`)
+          // TODO - trigger alert message and clear form
+        );
+    } else if (!isLoginMode) {
+      axios
+        .post('http://localhost:5000/api/v1/auth/register', {
+          name: formState.inputs.name.value,
+          email: formState.inputs.email.value,
+          password: formState.inputs.password.value,
+        })
+        .then((response) => {
+          if (response.status === 200) {
+            const token = response.data.token;
+            const user = response.data.user;
+            localStorage.setItem('bt', token);
+            localStorage.setItem('user', user);
+            auth.login(user, token);
+          }
+        })
+        .catch(
+          (err) => console.log(`Invalid credentials.  Please try again. ${err}`)
+          // TODO - trigger alert message and clear form
+        );
     }
   };
 
