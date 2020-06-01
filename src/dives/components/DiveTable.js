@@ -11,7 +11,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
-import DeleteIcon from '@material-ui/icons/Delete';
+import DiveTableActions from '../components/DiveTableActions';
 
 const columns = [
   { id: 'date', label: 'Date', minWidth: 20 },
@@ -25,45 +25,32 @@ const columns = [
     id: 'timeIn',
     label: 'Time In',
     width: 25,
-    align: 'left',
-    format: (value) => value.toLocaleString('en-US'),
-  },
-  {
-    id: 'timeOut',
-    label: 'Time Out',
-    width: 25,
-    align: 'left',
+    align: 'center',
     format: (value) => value.toLocaleString('en-US'),
   },
   {
     id: 'duration',
     label: 'Duration',
     minWidth: 25,
-    align: 'left',
+    align: 'center',
     format: (value) => value.toLocaleString('en-US'),
-    // format: (value) => value.toFixed(2),
   },
   {
     id: 'maxDepth',
     label: 'Max Depth',
     minWidth: 25,
-    align: 'left',
+    align: 'center',
     format: (value) => value.toFixed(2),
   },
-  { id: 'actions', label: 'Actions', minWidth: 30, align: 'right' },
+  {
+    id: 'actions',
+    label: 'Actions',
+    align: 'center',
+  },
 ];
 
-function createData(
-  date,
-  diveSite,
-  timeIn,
-  timeOut,
-  duration,
-  maxDepth,
-  actions,
-  id
-) {
-  return { date, diveSite, timeIn, timeOut, duration, maxDepth, actions, id };
+function createData(date, diveSite, timeIn, duration, maxDepth, actions, id) {
+  return { date, diveSite, timeIn, duration, maxDepth, actions, id };
 }
 
 const useStyles = makeStyles({
@@ -86,17 +73,9 @@ const DiveTable = (props) => {
       d.date,
       d.diveSite,
       d.timeIn.toString(),
-      d.timeOut.toString(),
       d.diveDuration,
       d.maxDepth.toString(),
-      (() => (
-        <DeleteIcon
-          dataid={d._id}
-          onClick={(e) => {
-            console.log(d._id);
-          }}
-        />
-      ))(),
+      (() => <DiveTableActions dataid={d._id} />)(),
       d._id
     )
   );
@@ -132,13 +111,7 @@ const DiveTable = (props) => {
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row) => {
                 return (
-                  <TableRow
-                    hover
-                    role='checkbox'
-                    tabIndex={-1}
-                    key={row.id}
-                    // onClick={() => console.log('Row Clicked: ', row)}
-                  >
+                  <TableRow hover role='checkbox' tabIndex={-1} key={row.id}>
                     {columns.map((column) => {
                       const value = row[column.id];
                       return (

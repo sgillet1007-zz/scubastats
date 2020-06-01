@@ -54,7 +54,7 @@ const NewDiveForm = () => {
     e.preventDefault();
     const parsedTimeIn = parseTimeInputValue(formState.inputs.timeIn.value);
     const parsedTimeOut = parseTimeInputValue(formState.inputs.timeOut.value);
-
+    // TODO - move this into Dive Context
     try {
       fetch('http://localhost:5000/api/v1/dives', {
         method: 'POST',

@@ -7,6 +7,8 @@ import {
 } from 'react-router-dom';
 import AuthForm from './user/pages/AuthForm';
 import DiveDashboard from './dives/pages/DiveDashboard';
+import DiveView from './dives/pages/DiveView';
+import DiveEdit from './dives/pages/DiveEdit';
 import MainNavigation from './shared/components/Navigation/MainNavigation';
 import { AuthContext } from './shared/context/auth-context';
 
@@ -17,9 +19,11 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem('bt'));
   const [user, setUser] = useState(localStorage.getItem('user'));
 
-  const login = useCallback((usr, token) => {
+  const login = useCallback((user, token) => {
+    localStorage.setItem('bt', token);
     setToken(token);
-    setUser(usr);
+    localStorage.setItem('user', user);
+    setUser(user);
   }, []);
 
   const logout = useCallback(() => {
@@ -42,6 +46,16 @@ function App() {
         <Route path='/dives/new' exact>
           <main>
             <NewDiveForm />
+          </main>
+        </Route>
+        <Route path='/dives/view/:diveId' exact>
+          <main>
+            <DiveView />
+          </main>
+        </Route>
+        <Route path='/dives/edit/:diveId' exact>
+          <main>
+            <DiveEdit />
           </main>
         </Route>
         <Redirect to='/' />

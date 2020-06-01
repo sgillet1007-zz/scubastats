@@ -1,0 +1,16 @@
+.dive-action-container {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+  max-width: 150px;
+  margin: 0 auto;
+}
+
+.dive-action-icon {
+  padding-left: 0.1em;
+  cursor: pointer;
+}
+
+.dive-action-icon:hover {
+  opacity: 0.8;
+}
