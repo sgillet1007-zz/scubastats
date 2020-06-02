@@ -5,17 +5,18 @@ import {
   Redirect,
   Switch,
 } from 'react-router-dom';
-import AuthForm from './user/pages/AuthForm';
-import DiveDashboard from './dives/pages/DiveDashboard';
-import DiveView from './dives/pages/DiveView';
-import DiveEdit from './dives/pages/DiveEdit';
-import MainNavigation from './shared/components/Navigation/MainNavigation';
 import { AuthContext } from './shared/context/auth-context';
 
-import './App.css';
-import NewDiveForm from './dives/pages/NewDiveForm';
+import MainNavigation from './shared/components/Navigation/MainNavigation';
+import AuthForm from './user/pages/AuthForm';
+import DiveDashboard from './dives/pages/DiveDashboard';
+import AddDiveForm from './dives/pages/AddDiveForm';
+import ViewDive from './dives/pages/ViewDive';
+import EditDive from './dives/pages/EditDive';
 
-function App() {
+import './App.css';
+
+const App = () => {
   const [token, setToken] = useState(localStorage.getItem('bt'));
   const [user, setUser] = useState(localStorage.getItem('user'));
 
@@ -45,17 +46,17 @@ function App() {
         </Route>
         <Route path='/dives/new' exact>
           <main>
-            <NewDiveForm />
+            <AddDiveForm />
           </main>
         </Route>
         <Route path='/dives/view/:diveId' exact>
           <main>
-            <DiveView />
+            <ViewDive />
           </main>
         </Route>
         <Route path='/dives/edit/:diveId' exact>
           <main>
-            <DiveEdit />
+            <EditDive />
           </main>
         </Route>
         <Redirect to='/' />
@@ -84,6 +85,6 @@ function App() {
       </Router>
     </AuthContext.Provider>
   );
-}
+};
 
 export default App;

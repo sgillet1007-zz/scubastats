@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import axios from 'axios';
 import Input from '../../shared/components/FormElements/Input.js';
 import Button from '../../shared/components/FormElements/Button';
 import {
@@ -8,61 +9,62 @@ import {
 } from '../../shared/utils/validators';
 import { AuthContext } from '../../shared/context/auth-context';
 import { useForm } from '../../shared/hooks/form-hook';
-import './NewDiveForm.css';
+import './AddDiveForm.css';
 
 const parseTimeInputValue = (rawVal) => {
   // f.e. format "12:25" => b.e. format 1225
   return parseInt(rawVal.replace(':', ''));
 };
 
-const NewDiveForm = () => {
-  const auth = useContext(AuthContext);
+const initialInputState = {
+  diveSite: {
+    value: '',
+    isValid: false,
+  },
+  date: {
+    value: '',
+    isValid: false,
+  },
+  timeIn: {
+    value: '',
+    isValid: false,
+  },
+  timeOut: {
+    value: '',
+    isValid: false,
+  },
+  lat: {
+    value: '',
+    isValid: false,
+  },
+  lng: {
+    value: '',
+    isValid: false,
+  },
+  maxDepth: {
+    value: '',
+    isValid: false,
+  },
+};
+
+const AddDiveForm = () => {
   const [formState, inputHandler, setFormData] = useForm(
-    {
-      diveSite: {
-        value: '',
-        isValid: false,
-      },
-      date: {
-        value: '',
-        isValid: false,
-      },
-      timeIn: {
-        value: '',
-        isValid: false,
-      },
-      timeOut: {
-        value: '',
-        isValid: false,
-      },
-      lat: {
-        value: '',
-        isValid: false,
-      },
-      lng: {
-        value: '',
-        isValid: false,
-      },
-      maxDepth: {
-        value: '',
-        isValid: false,
-      },
-    },
+    initialInputState,
     false
   );
-  const diveSubmitHandler = (e) => {
+  const auth = useContext(AuthContext);
+  const authJsonHeader = {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer ' + auth.token,
+  };
+  const addDiveSubmitHandler = (e) => {
     e.preventDefault();
     const parsedTimeIn = parseTimeInputValue(formState.inputs.timeIn.value);
     const parsedTimeOut = parseTimeInputValue(formState.inputs.timeOut.value);
-    // TODO - move this into Dive Context
-    try {
-      fetch('http://localhost:5000/api/v1/dives', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + auth.token,
-        },
-        body: JSON.stringify({
+    axios
+      .post(
+        'http://localhost:5000/api/v1/dives',
+        {
           diveSite: formState.inputs.diveSite.value,
           date: formState.inputs.date.value,
           timeIn: parsedTimeIn,
@@ -73,50 +75,23 @@ const NewDiveForm = () => {
             lat: parseFloat(formState.inputs.lat.value),
             lng: parseFloat(formState.inputs.lng.value),
           },
-        }),
-      }).then(() => {
-        setFormData(
-          {
-            diveSite: {
-              value: '',
-              isValid: false,
-            },
-            date: {
-              value: '',
-              isValid: false,
-            },
-            timeIn: {
-              value: '',
-              isValid: false,
-            },
-            timeOut: {
-              value: '',
-              isValid: false,
-            },
-            lat: {
-              value: '',
-              isValid: false,
-            },
-            lng: {
-              value: '',
-              isValid: false,
-            },
-            maxDepth: {
-              value: '',
-              isValid: false,
-            },
-          },
-          false
-        );
-      });
-    } catch (err) {
-      console.log(err);
-    }
+        },
+        {
+          headers: authJsonHeader,
+        }
+      )
+      .then(() => {
+        setFormData(initialInputState, false);
+        console.log('formState: ', formState);
+        // TODO - navigate back to dashboard
+      })
+      .catch((err) => console.log(`Problem adding new dive. ${err}`));
   };
+
   return (
     <div>
       <h2>ENTER DIVE DETAILS</h2>
-      <form onSubmit={diveSubmitHandler}>
+      <form onSubmit={addDiveSubmitHandler}>
         <Input
           id='diveSite'
           element='input'
@@ -132,7 +107,7 @@ const NewDiveForm = () => {
           type='number'
           label='Latitude'
           validators={[VALIDATOR_MIN(-90), VALIDATOR_MAX(90)]}
-          errorText='Please enter the dive site latitude'
+          errorText='Please enter a latitude between -90 and 90'
           onInput={inputHandler}
         />
         <Input
@@ -141,7 +116,7 @@ const NewDiveForm = () => {
           type='number'
           label='Longitude'
           validators={[VALIDATOR_MIN(-180), VALIDATOR_MAX(180)]}
-          errorText='Please enter the dive site longitude'
+          errorText='Please enter a longitude between -180 and 180'
           onInput={inputHandler}
         />
         <Input
@@ -150,7 +125,7 @@ const NewDiveForm = () => {
           type='date'
           label='Date'
           validators={[VALIDATOR_REQUIRE()]}
-          errorText='Please enter date'
+          errorText='Please the date of the dive'
           onInput={inputHandler}
         />
         <Input
@@ -159,7 +134,7 @@ const NewDiveForm = () => {
           type='time'
           label='Time In'
           validators={[VALIDATOR_REQUIRE()]}
-          errorText='Please enter time in'
+          errorText='Please enter a start time for your dive'
           onInput={inputHandler}
         />
         <Input
@@ -168,7 +143,7 @@ const NewDiveForm = () => {
           type='time'
           label='Time Out'
           validators={[VALIDATOR_REQUIRE()]}
-          errorText='Please enter time out'
+          errorText='Please enter an end time for your dive'
           onInput={inputHandler}
         />
         <Input
@@ -180,7 +155,11 @@ const NewDiveForm = () => {
           errorText='Please enter max depth'
           onInput={inputHandler}
         />
-        <Button type='submit' disabled={!formState.isValid}>
+        <Button
+          type='submit'
+          disabled={!formState.isValid}
+          onClick={() => window.location.reload()} // TODO - clear inputs without page reload
+        >
           Log it!
         </Button>
       </form>
@@ -188,4 +167,4 @@ const NewDiveForm = () => {
   );
 };
 
-export default NewDiveForm;
+export default AddDiveForm;
