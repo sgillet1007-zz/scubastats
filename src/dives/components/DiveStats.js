@@ -5,6 +5,24 @@ import Typography from '@material-ui/core/Typography';
 
 import './DiveStats.css';
 
+const getTotalHours = (dives) => {
+  const durationArray = dives.map((d) => d.diveDuration);
+  const durationSum = durationArray.reduce((acc, current) => {
+    return acc + current;
+  }, 0);
+  return Math.floor(durationSum / 60);
+};
+
+const getDeepestDive = (dives) => {
+  const depthArray = dives.map((d) => d.maxDepth);
+  return Math.max(...depthArray);
+};
+
+const getLongest = (dives) => {
+  const durationArray = dives.map((d) => d.diveDuration);
+  return Math.max(...durationArray);
+};
+
 const DiveStats = (props) => {
   return (
     <>
@@ -21,7 +39,7 @@ const DiveStats = (props) => {
       <Card className='stats-card'>
         <CardContent>
           <Typography variant='h5' component='h2'>
-            253
+            {getTotalHours(props.dives)}
           </Typography>
           <Typography color='textSecondary' gutterBottom>
             Hours Underwater
@@ -31,7 +49,7 @@ const DiveStats = (props) => {
       <Card className='stats-card'>
         <CardContent>
           <Typography variant='h5' component='h2'>
-            125 ft
+            {`${getDeepestDive(props.dives)} ft`}
           </Typography>
           <Typography color='textSecondary' gutterBottom>
             Deepest Dive
@@ -41,7 +59,7 @@ const DiveStats = (props) => {
       <Card className='stats-card'>
         <CardContent>
           <Typography variant='h5' component='h2'>
-            93 mins
+            {`${getLongest(props.dives)} mins`}
           </Typography>
           <Typography color='textSecondary' gutterBottom>
             Longest Dive

@@ -54,7 +54,7 @@ const DiveDashboard = () => {
     >
       <>
         <section className='stats-section'>
-          <DiveStats />
+          <DiveStats dives={dives} />
         </section>
         <section className='table-section'>
           <DiveTable />
