@@ -56,11 +56,11 @@ const DiveDashboard = () => {
         <section className='stats-section'>
           <DiveStats dives={dives} />
         </section>
+        <section className='map-section'>
+          <DiveMap dives={dives} />
+        </section>
         <section className='table-section'>
           <DiveTable />
-        </section>
-        <section className='map-section'>
-          <DiveMap />
         </section>
       </>
     </DiveContext.Provider>

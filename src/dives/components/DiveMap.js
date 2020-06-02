@@ -13,6 +13,7 @@ const renderCustomMarker = () =>
   });
 
 const DiveMap = (props) => {
+  const { dives } = props;
   return (
     <Paper>
       <Map center={[20.505, -79.09]} zoom={5} scrollWheelZoom={false}>
@@ -20,13 +21,21 @@ const DiveMap = (props) => {
           url='https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png'
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         />
-        <Marker position={[20.505, -79.09]} icon={renderCustomMarker()}>
-          <Popup>
-            A pretty CSS3 popup.
-            <br />
-            Easily customizable.
-          </Popup>
-        </Marker>
+
+        {dives.map((d) => {
+          return (
+            <Marker
+              position={[d.coords.lat, d.coords.lng]}
+              icon={renderCustomMarker()}
+            >
+              <Popup>
+                {`${d.diveSite}`}
+                <br />
+                {`${d.date}`}
+              </Popup>
+            </Marker>
+          );
+        })}
       </Map>
     </Paper>
   );
