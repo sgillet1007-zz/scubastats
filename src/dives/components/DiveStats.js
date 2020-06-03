@@ -29,7 +29,7 @@ const DiveStats = (props) => {
       <Card className='stats-card'>
         <CardContent>
           <Typography variant='h5' component='h2'>
-            93
+            {props.dives.length}
           </Typography>
           <Typography color='textSecondary' gutterBottom>
             Dives Logged

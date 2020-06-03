@@ -16,7 +16,7 @@ const DiveMap = (props) => {
   const { dives } = props;
   return (
     <Paper>
-      <Map center={[20.505, -79.09]} zoom={5} scrollWheelZoom={false}>
+      <Map center={[10.505, -165]} zoom={3} scrollWheelZoom={false}>
         <TileLayer
           url='https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png'
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
