@@ -23,8 +23,12 @@
 
 .main-navigation__title a {
   text-decoration: none;
-  /* color: #292929; */
-  color: white;
+  color: #050e8d;
+  /* color: #0e15bc; */
+  /* border: 1px solid white; */
+  /* -webkit-text-stroke: 1px #03065e;
+  -webkit-text-stroke: 0.5px #050870; */
+  /* filter: drop-shadow(1px 1px 4px #dbd1c5); */
 }
 
 .main-navigation__header-nav {

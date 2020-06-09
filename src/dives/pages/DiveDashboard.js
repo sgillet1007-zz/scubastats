@@ -18,7 +18,16 @@ const DiveDashboard = () => {
     })
       .then((response) => {
         if (response.status === 200) {
-          setDives(response.data.results.data);
+          const diveData = response.data.results.data;
+          setDives(
+            diveData
+              .sort((a, b) => {
+                return a.date > b.date ? (a.timeIn > b.timeIn ? 1 : -1) : -1;
+              })
+              .map((d, i) => {
+                return { ...d, diveNumber: i + 1 };
+              })
+          );
         }
       })
       .catch((err) => console.log(`Problem fetching dive data. ${err}`));
@@ -31,7 +40,16 @@ const DiveDashboard = () => {
       })
       .then((response) => {
         if (response.status === 200) {
-          setDives(dives.filter((d) => d._id !== id));
+          setDives(
+            dives
+              .filter((d) => d._id !== id)
+              .sort((a, b) => {
+                return a.date > b.date ? (a.timeIn > b.timeIn ? 1 : -1) : -1;
+              })
+              .map((d, i) => {
+                return { ...d, diveNumber: i + 1 };
+              })
+          );
         }
       })
       .catch((err) =>
@@ -56,12 +74,20 @@ const DiveDashboard = () => {
         <section className='stats-section'>
           <DiveStats dives={dives} />
         </section>
-        <section className='map-section'>
+        <section className='map-list-section'>
+          <div className='map-panel'>
+            <DiveMap dives={dives} />
+          </div>
+          <div className='table-panel'>
+            <DiveTable updateDives={getAllDives} />
+          </div>
+        </section>
+        {/* <section className='map-section'>
           <DiveMap dives={dives} />
         </section>
         <section className='table-section'>
           <DiveTable />
-        </section>
+        </section> */}
       </>
     </DiveContext.Provider>
   );

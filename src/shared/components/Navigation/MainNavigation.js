@@ -6,7 +6,7 @@ import NavLinks from './NavLinks';
 import SideDrawer from './SideDrawer';
 import Backdrop from '../UIElements/Backdrop';
 import './MainNavigation.css';
-import logo from '../../../logo.png';
+// import logo from '../../../logo.png';
 
 const MainNavigation = () => {
   const [drawerIsOpen, setDrawerIsOpen] = useState(false);
@@ -30,9 +30,7 @@ const MainNavigation = () => {
 
       <MainHeader>
         <h1 className='main-navigation__title'>
-          <Link to='/'>
-            <img src={logo} width={180} alt='logo' />
-          </Link>
+          <Link to='/'>logo</Link>
         </h1>
         <nav className='main-navigation__header-nav'>
           <NavLinks />

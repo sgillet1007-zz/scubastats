@@ -12,18 +12,15 @@ const NavLinks = (props) => {
       {auth.token && (
         <li>
           <NavLink to='/' exact>
-            DASHBOARD
+            HOME
           </NavLink>
         </li>
       )}
-      {/* {auth.isLoggedIn && (
-        <li>
-          <NavLink to='/u1/places'>MY DIVES</NavLink>
-        </li>
-      )} */}
       {auth.token && (
         <li>
-          <NavLink to='/dives/new'>ADD DIVE</NavLink>
+          <NavLink to='/dives/new' exact>
+            ADD DIVE
+          </NavLink>
         </li>
       )}
       {auth.token && (

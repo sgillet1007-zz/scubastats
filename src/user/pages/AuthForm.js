@@ -130,10 +130,10 @@ const AuthForm = () => {
         <Button type='submit' disabled={!formState.isValid}>
           {isLoginMode ? 'Login' : 'Sign Up'}
         </Button>
+        <Button inverse noborder onClick={switchModeHandler}>
+          {isLoginMode ? 'Need an account?' : 'Back to user login'}
+        </Button>
       </form>
-      <Button inverse onClick={switchModeHandler}>
-        {isLoginMode ? 'Switch to Sign Up Mode' : 'Switch to Log In Mode'}
-      </Button>
     </Card>
   );
 };

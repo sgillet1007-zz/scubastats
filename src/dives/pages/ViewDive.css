@@ -1,0 +1,22 @@
+.dive-view {
+  padding: 1em;
+  margin-top: 6em;
+}
+.display-group {
+  display: flex;
+  align-content: space-around;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.display-group .left-group,
+.display-group .right-group {
+  min-width: 350px;
+}
+
+.dive-view .map-container,
+.dive-view .leaflet-container {
+  background-color: red;
+  height: 200px;
+  width: 350px;
+}

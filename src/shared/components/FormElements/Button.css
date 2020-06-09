@@ -32,6 +32,10 @@
   background: #ff0055;
 }
 
+.button--inverse.noborder {
+  border-color: white;
+}
+
 .button--danger {
   background: #830000;
   border-color: #830000;

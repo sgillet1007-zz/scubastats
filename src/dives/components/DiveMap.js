@@ -16,27 +16,33 @@ const DiveMap = (props) => {
   const { dives } = props;
   return (
     <Paper>
-      <Map center={[10.505, -165]} zoom={3} scrollWheelZoom={false}>
-        <TileLayer
-          url='https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png'
-          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        />
-
-        {dives.map((d) => {
-          return (
-            <Marker
-              position={[d.coords.lat, d.coords.lng]}
-              icon={renderCustomMarker()}
-            >
-              <Popup>
-                {`${d.diveSite}`}
-                <br />
-                {`${d.date}`}
-              </Popup>
-            </Marker>
-          );
-        })}
-      </Map>
+      {dives.length && (
+        <Map
+          center={[dives[0].coords.lat, dives[0].coords.lng]}
+          zoom={3}
+          scrollWheelZoom={false}
+        >
+          <TileLayer
+            url='https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png'
+            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          />
+          {dives.map((d) => {
+            return (
+              <Marker
+                position={[d.coords.lat, d.coords.lng]}
+                icon={renderCustomMarker()}
+                key={`${d.name}${Math.random()}`}
+              >
+                <Popup>
+                  {`${d.diveSite}`}
+                  <br />
+                  {`${d.date}`}
+                </Popup>
+              </Marker>
+            );
+          })}
+        </Map>
+      )}
     </Paper>
   );
 };

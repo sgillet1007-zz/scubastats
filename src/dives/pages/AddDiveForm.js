@@ -1,4 +1,10 @@
-import React, { useRef, useState, useContext, useEffect } from 'react';
+import React, {
+  useRef,
+  useState,
+  useContext,
+  useEffect,
+  useCallback,
+} from 'react';
 import axios from 'axios';
 import Input from '../../shared/components/FormElements/Input.js';
 import Button from '../../shared/components/FormElements/Button';
@@ -13,11 +19,18 @@ import Paper from '@material-ui/core/Paper';
 import { icon, Point } from 'leaflet';
 import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 import './AddDiveForm.css';
+import diveSiteIcon from '../../dive-marker-grey@2x.png';
 
 const parseTimeInputValue = (rawVal) => {
   // f.e. format "12:25" => b.e. format 1225
   return parseInt(rawVal.replace(':', ''));
 };
+
+const renderCustomMarker = () =>
+  new icon({
+    iconUrl: diveSiteIcon,
+    iconSize: new Point(8, 8),
+  });
 
 const initialInputState = {
   diveSite: {
@@ -87,7 +100,7 @@ const AddDiveForm = () => {
     setCurrentZoom(currentZoom);
   };
 
-  const fetchAndSetDiveSitesOnMap = () => {
+  const fetchAndSetDiveSitesOnMap = useCallback(() => {
     if (currentZoom >= 8) {
       axios
         .get('http://localhost:5000/api/v1/divesites')
@@ -112,17 +125,17 @@ const AddDiveForm = () => {
     } else {
       setDiveSites([]);
     }
-  };
+  }, [currentZoom]);
 
   useEffect(() => {
     fetchAndSetDiveSitesOnMap();
-  }, []);
+  }, [fetchAndSetDiveSitesOnMap]);
 
-  let pickedDivesite = {
-    name: '',
-    lat: null,
-    lng: null,
-  };
+  // let pickedDivesite = {
+  //   name: '',
+  //   lat: null,
+  //   lng: null,
+  // };
   const addDiveSubmitHandler = (e) => {
     e.preventDefault();
     const parsedTimeIn = parseTimeInputValue(formState.inputs.timeIn.value);
@@ -159,7 +172,7 @@ const AddDiveForm = () => {
         <>
           <h2>
             {diveSites.length
-              ? 'Click on dive sites until you find your dive loaction'
+              ? 'Pick a dive site'
               : 'Zoom in to show known dive sites on the map'}
           </h2>
           <Paper className='map-container'>
@@ -183,6 +196,7 @@ const AddDiveForm = () => {
                     <Marker
                       position={[d.lat, d.lng]}
                       key={`${d.siteName}${Math.random()}`}
+                      icon={renderCustomMarker()}
                     >
                       <Popup>
                         {`${d.siteName}`}

@@ -39,7 +39,7 @@ const DiveStats = (props) => {
       <Card className='stats-card'>
         <CardContent>
           <Typography variant='h5' component='h2'>
-            {getTotalHours(props.dives)}
+            {props.dives.length ? getTotalHours(props.dives) : 0}
           </Typography>
           <Typography color='textSecondary' gutterBottom>
             Hours Underwater
@@ -49,7 +49,7 @@ const DiveStats = (props) => {
       <Card className='stats-card'>
         <CardContent>
           <Typography variant='h5' component='h2'>
-            {`${getDeepestDive(props.dives)} ft`}
+            {`${props.dives.length ? getDeepestDive(props.dives) : 0} ft`}
           </Typography>
           <Typography color='textSecondary' gutterBottom>
             Deepest Dive
@@ -59,7 +59,7 @@ const DiveStats = (props) => {
       <Card className='stats-card'>
         <CardContent>
           <Typography variant='h5' component='h2'>
-            {`${getLongest(props.dives)} mins`}
+            {`${props.dives.length ? getLongest(props.dives) : 0} mins`}
           </Typography>
           <Typography color='textSecondary' gutterBottom>
             Longest Dive

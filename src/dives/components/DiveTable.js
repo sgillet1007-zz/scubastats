@@ -14,6 +14,7 @@ import TableRow from '@material-ui/core/TableRow';
 import DiveTableActions from '../components/DiveTableActions';
 
 const columns = [
+  { id: 'diveNumber', label: 'Dive#' },
   { id: 'date', label: 'Date', minWidth: 20 },
   {
     id: 'diveSite',
@@ -49,8 +50,26 @@ const columns = [
   },
 ];
 
-function createData(date, diveSite, timeIn, duration, maxDepth, actions, id) {
-  return { date, diveSite, timeIn, duration, maxDepth, actions, id };
+function createData(
+  diveNumber,
+  date,
+  diveSite,
+  timeIn,
+  duration,
+  maxDepth,
+  actions,
+  id
+) {
+  return {
+    diveNumber,
+    date,
+    diveSite,
+    timeIn,
+    duration,
+    maxDepth,
+    actions,
+    id,
+  };
 }
 
 const useStyles = makeStyles({
@@ -70,6 +89,7 @@ const DiveTable = (props) => {
 
   const rows = dContext.dives.map((d) =>
     createData(
+      d.diveNumber,
       d.date,
       d.diveSite,
       d.timeIn.toString(),
