@@ -10,7 +10,7 @@ const getTotalHours = (dives) => {
   const durationSum = durationArray.reduce((acc, current) => {
     return acc + current;
   }, 0);
-  return Math.floor(durationSum / 60);
+  return Math.round(durationSum / 60);
 };
 
 const getDeepestDive = (dives) => {

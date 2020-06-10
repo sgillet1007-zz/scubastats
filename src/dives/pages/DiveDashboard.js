@@ -68,6 +68,7 @@ const DiveDashboard = () => {
         deleteDive: deleteDive,
         editDive: () => {},
         viewDive: () => {},
+        getDives: getAllDives,
       }}
     >
       <>
@@ -75,19 +76,13 @@ const DiveDashboard = () => {
           <DiveStats dives={dives} />
         </section>
         <section className='map-list-section'>
-          <div className='map-panel'>
-            <DiveMap dives={dives} />
-          </div>
           <div className='table-panel'>
-            <DiveTable updateDives={getAllDives} />
+            <DiveTable />
+          </div>
+          <div className='map-panel'>
+            <DiveMap />
           </div>
         </section>
-        {/* <section className='map-section'>
-          <DiveMap dives={dives} />
-        </section>
-        <section className='table-section'>
-          <DiveTable />
-        </section> */}
       </>
     </DiveContext.Provider>
   );

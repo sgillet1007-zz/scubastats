@@ -16,7 +16,6 @@
 
 .dive-view .map-container,
 .dive-view .leaflet-container {
-  background-color: red;
   height: 200px;
   width: 350px;
 }

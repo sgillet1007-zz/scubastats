@@ -13,6 +13,8 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import DiveTableActions from '../components/DiveTableActions';
 
+import './DiveTable.css';
+
 const columns = [
   { id: 'diveNumber', label: 'Dive#' },
   { id: 'date', label: 'Date', minWidth: 20 },
@@ -81,7 +83,7 @@ const useStyles = makeStyles({
   },
 });
 
-const DiveTable = (props) => {
+const DiveTable = () => {
   const dContext = useContext(DiveContext);
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
@@ -110,7 +112,7 @@ const DiveTable = (props) => {
   };
 
   return (
-    <Paper className={classes.root}>
+    <Paper className={`${classes.root} table-section`}>
       <TableContainer className={classes.container}>
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>

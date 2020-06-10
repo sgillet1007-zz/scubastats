@@ -64,24 +64,23 @@ const initialInputState = {
 };
 
 const AddDiveForm = () => {
-  const mapRef = useRef();
-  const [diveSites, setDiveSites] = useState([]);
-  const [currentZoom, setCurrentZoom] = useState(3);
-  const [pickedSite, setPickedSite] = useState({
-    name: '',
-    lat: null,
-    lng: null,
-  });
-  // const [locationMapMode, setLocationMapMode] = useState(true);
-  const [formState, inputHandler, setFormData] = useForm(
-    initialInputState,
-    false
-  );
   const auth = useContext(AuthContext);
   const authJsonHeader = {
     'Content-Type': 'application/json',
     Authorization: 'Bearer ' + auth.token,
   };
+  const [diveSites, setDiveSites] = useState([]);
+  const mapRef = useRef();
+  const [currentZoom, setCurrentZoom] = useState(7);
+  // const [pickedSite, setPickedSite] = useState({
+  //   name: '',
+  //   lat: null,
+  //   lng: null,
+  // });
+  const [formState, inputHandler, setFormData] = useForm(
+    initialInputState,
+    false
+  );
 
   const getMapBoundCoords = () => {
     const mapBounds = mapRef.current.leafletElement.getBounds();
@@ -95,49 +94,43 @@ const AddDiveForm = () => {
 
     return { maxLat, minLat, maxLng, minLng };
   };
+
   const fetchSetCurrentMapZoom = () => {
     const currentZoom = mapRef.current.leafletElement.getZoom();
     setCurrentZoom(currentZoom);
   };
 
   const fetchAndSetDiveSitesOnMap = useCallback(() => {
-    if (currentZoom >= 8) {
-      axios
-        .get('http://localhost:5000/api/v1/divesites')
-        .then((response) => {
-          if (response.status === 200) {
-            let sitesWithinMapBounds = response.data.results.filter((ds) => {
-              let isWithinMapView = false;
-              const mapCoords = getMapBoundCoords();
-              if (ds.lat > mapCoords.minLat && ds.lat < mapCoords.maxLat) {
-                if (ds.lng > mapCoords.minLng && ds.lng < mapCoords.maxLng) {
-                  isWithinMapView = true;
-                }
+    axios
+      .get('http://localhost:5000/api/v1/divesites')
+      .then((response) => {
+        if (response.status === 200) {
+          let sitesWithinMapBounds = response.data.results.filter((ds) => {
+            let isWithinMapView = false;
+            const mapCoords = getMapBoundCoords();
+            if (ds.lat > mapCoords.minLat && ds.lat < mapCoords.maxLat) {
+              if (ds.lng > mapCoords.minLng && ds.lng < mapCoords.maxLng) {
+                isWithinMapView = true;
               }
-              return isWithinMapView;
-            });
-            setDiveSites(sitesWithinMapBounds);
-          }
-        })
-        .catch((err) =>
-          console.log(`Problem fetching divesite location data. ${err}`)
-        );
-    } else {
-      setDiveSites([]);
-    }
-  }, [currentZoom]);
+            }
+            return isWithinMapView;
+          });
+          setDiveSites(sitesWithinMapBounds);
+        }
+      })
+      .catch((err) => {
+        console.log(`Problem fetching divesite location data. ${err}`);
+        setDiveSites([]);
+      });
+  }, []);
 
   useEffect(() => {
     fetchAndSetDiveSitesOnMap();
   }, [fetchAndSetDiveSitesOnMap]);
 
-  // let pickedDivesite = {
-  //   name: '',
-  //   lat: null,
-  //   lng: null,
-  // };
   const addDiveSubmitHandler = (e) => {
     e.preventDefault();
+    console.log('formState: ', formState);
     const parsedTimeIn = parseTimeInputValue(formState.inputs.timeIn.value);
     const parsedTimeOut = parseTimeInputValue(formState.inputs.timeOut.value);
     axios
@@ -168,162 +161,174 @@ const AddDiveForm = () => {
 
   return (
     <div>
-      {pickedSite.name.length === 0 && (
-        <>
-          <h2>
-            {diveSites.length
-              ? 'Pick a dive site'
-              : 'Zoom in to show known dive sites on the map'}
-          </h2>
-          <Paper className='map-container'>
-            <Map
-              center={[25, -75]}
-              zoom={3}
-              scrollWheelZoom={true}
-              ref={mapRef}
-              onmoveend={(e) => {
-                fetchSetCurrentMapZoom();
-                fetchAndSetDiveSitesOnMap();
-              }}
-            >
-              <TileLayer
-                url='https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png'
-                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-              />
-              {diveSites.length &&
-                diveSites.map((d) => {
-                  return (
-                    <Marker
-                      position={[d.lat, d.lng]}
-                      key={`${d.siteName}${Math.random()}`}
-                      icon={renderCustomMarker()}
-                    >
-                      <Popup>
-                        {`${d.siteName}`}
-                        <br />
-                        <button
-                          onClick={() => {
-                            setPickedSite({
-                              name: d.siteName,
-                              lat: d.lat,
-                              lng: d.lng,
-                            });
-                            setFormData(
-                              {
-                                ...initialInputState,
-                                diveSite: {
-                                  value: d.siteName,
-                                  isValid: true,
-                                },
-                                lat: {
-                                  value: d.lat,
-                                  isValid: true,
-                                },
-                                lng: {
-                                  value: d.lng,
-                                  isValid: true,
-                                },
+      <Paper className='add-dive'>
+        <Map
+          center={[20.3553, -87.0291]}
+          zoom={7}
+          scrollWheelZoom={true}
+          ref={mapRef}
+          onmoveend={(e) => {
+            fetchSetCurrentMapZoom();
+            if (currentZoom > 6) {
+              fetchAndSetDiveSitesOnMap();
+            }
+          }}
+        >
+          <TileLayer
+            url='https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png'
+            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          />
+          {diveSites.length &&
+            diveSites.map((d) => {
+              return (
+                <Marker
+                  position={[d.lat, d.lng]}
+                  key={`${d.siteName}${Math.random()}`}
+                  icon={renderCustomMarker()}
+                >
+                  <Popup>
+                    {`${d.siteName}`}
+                    <br />
+                    <button
+                      onClick={() => {
+                        // setPickedSite({
+                        //   name: d.siteName,
+                        //   lat: d.lat,
+                        //   lng: d.lng,
+                        // });
+                        setFormData(
+                          setFormData(
+                            {
+                              diveSite: {
+                                value: 'YEP',
+                                isValid: true,
                               },
-                              false
-                            );
-                            setDiveSites({
-                              _id: d._id,
-                              siteName: d.siteName,
-                              lat: d.lat,
-                              lng: d.lng,
-                            });
-                          }}
-                        >
-                          Pick This Site
-                        </button>
-                      </Popup>
-                    </Marker>
-                  );
-                })}
-            </Map>
-          </Paper>
-        </>
-      )}
-      {pickedSite.name !== '' && (
-        <form onSubmit={addDiveSubmitHandler}>
-          <Input
-            id='diveSite'
-            element='input'
-            type='text'
-            label='Dive Site'
-            validators={[VALIDATOR_REQUIRE()]}
-            errorText='Please enter the dive site name'
-            onInput={inputHandler}
-            initialValue={formState.inputs.diveSite.value}
-            initialValid={true}
-          />
-          <Input
-            id='lat'
-            element='input'
-            type='number'
-            label='Latitude'
-            validators={[VALIDATOR_MIN(-90), VALIDATOR_MAX(90)]}
-            errorText='Please enter a latitude between -90 and 90'
-            onInput={inputHandler}
-            initialValue={formState.inputs.lat.value}
-            initialValid={true}
-          />
-          <Input
-            id='lng'
-            element='input'
-            type='number'
-            label='Longitude'
-            validators={[VALIDATOR_MIN(-180), VALIDATOR_MAX(180)]}
-            errorText='Please enter a longitude between -180 and 180'
-            onInput={inputHandler}
-            initialValue={formState.inputs.lng.value}
-            initialValid={true}
-          />
-          <Input
-            id='date'
-            element='input'
-            type='date'
-            label='Date'
-            validators={[VALIDATOR_REQUIRE()]}
-            errorText='Please the date of the dive'
-            onInput={inputHandler}
-          />
-          <Input
-            id='timeIn'
-            element='input'
-            type='time'
-            label='Time In'
-            validators={[VALIDATOR_REQUIRE()]}
-            errorText='Please enter a start time for your dive'
-            onInput={inputHandler}
-          />
-          <Input
-            id='timeOut'
-            element='input'
-            type='time'
-            label='Time Out'
-            validators={[VALIDATOR_REQUIRE()]}
-            errorText='Please enter an end time for your dive'
-            onInput={inputHandler}
-          />
-          <Input
-            id='maxDepth'
-            element='input'
-            type='number'
-            label='Max Depth'
-            validators={[VALIDATOR_REQUIRE()]}
-            errorText='Please enter max depth'
-            onInput={inputHandler}
-          />
-          <Button
-            type='submit'
-            disabled={!formState.isValid}
-            onClick={() => window.location.reload()} // TODO - clear inputs without page reload
-          >
-            Log it!
-          </Button>
-        </form>
-      )}
+                              date: {
+                                value: '2020-10-10',
+                                isValid: true,
+                              },
+                              timeIn: {
+                                value: '10:10',
+                                isValid: true,
+                              },
+                              timeOut: {
+                                value: '10:50',
+                                isValid: true,
+                              },
+                              lat: {
+                                value: 20,
+                                isValid: true,
+                              },
+                              lng: {
+                                value: -85,
+                                isValid: true,
+                              },
+                              maxDepth: {
+                                value: 75,
+                                isValid: true,
+                              },
+                            },
+                            true
+                          )
+                          // setDiveSites({
+                          //   _id: d._id,
+                          //   siteName: d.siteName,
+                          //   lat: d.lat,
+                          //   lng: d.lng,
+                          // });
+                        );
+                      }}
+                    >
+                      Pick This Site
+                    </button>
+                  </Popup>
+                </Marker>
+              );
+            })}
+        </Map>
+      </Paper>
+      <form onSubmit={addDiveSubmitHandler}>
+        {formState.inputs && (
+          <>
+            <Input
+              id='diveSite'
+              element='input'
+              type='text'
+              label='Dive Site'
+              validators={[VALIDATOR_REQUIRE()]}
+              errorText='Please enter the dive site name'
+              onInput={inputHandler}
+              initialValue={formState.inputs.diveSite.value}
+              initialValid={true}
+            />
+            <Input
+              id='lat'
+              element='input'
+              type='number'
+              label='Latitude'
+              validators={[VALIDATOR_MIN(-90), VALIDATOR_MAX(90)]}
+              errorText='Please enter a latitude between -90 and 90'
+              onInput={inputHandler}
+              initialValue={formState.inputs.lat.value}
+              initialValid={true}
+            />
+            <Input
+              id='lng'
+              element='input'
+              type='number'
+              label='Longitude'
+              validators={[VALIDATOR_MIN(-180), VALIDATOR_MAX(180)]}
+              errorText='Please enter a longitude between -180 and 180'
+              onInput={inputHandler}
+              initialValue={formState.inputs.lng.value}
+              initialValid={true}
+            />
+          </>
+        )}
+        <Input
+          id='date'
+          element='input'
+          type='date'
+          label='Date'
+          validators={[VALIDATOR_REQUIRE()]}
+          errorText='Please the date of the dive'
+          onInput={inputHandler}
+        />
+        <Input
+          id='timeIn'
+          element='input'
+          type='time'
+          label='Time In'
+          validators={[VALIDATOR_REQUIRE()]}
+          errorText='Please enter a start time for your dive'
+          onInput={inputHandler}
+        />
+        <Input
+          id='timeOut'
+          element='input'
+          type='time'
+          label='Time Out'
+          validators={[VALIDATOR_REQUIRE()]}
+          errorText='Please enter an end time for your dive'
+          onInput={inputHandler}
+        />
+        <Input
+          id='maxDepth'
+          element='input'
+          type='number'
+          label='Max Depth'
+          validators={[VALIDATOR_REQUIRE()]}
+          errorText='Please enter max depth'
+          onInput={inputHandler}
+        />
+        <Button
+          type='submit'
+          disabled={!formState.isValid}
+          onClick={() => window.location.reload()} // TODO - clear inputs without page reload
+        >
+          Log it!
+        </Button>
+      </form>
     </div>
   );
 };

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Paper from '@material-ui/core/Paper';
 import { icon, Point } from 'leaflet';
 import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 import diveIcon from '../../dive-marker.png';
+import { DiveContext } from '../../shared/context/dive-context';
 
 import './DiveMap.css';
 
@@ -12,11 +13,12 @@ const renderCustomMarker = () =>
     iconSize: new Point(8, 8),
   });
 
-const DiveMap = (props) => {
-  const { dives } = props;
+const DiveMap = () => {
+  const dContext = useContext(DiveContext);
+  let dives = dContext.dives;
   return (
-    <Paper>
-      {dives.length && (
+    <Paper className='map-section'>
+      {dives.length > 0 && (
         <Map
           center={[dives[0].coords.lat, dives[0].coords.lng]}
           zoom={3}

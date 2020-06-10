@@ -5,4 +5,5 @@ export const DiveContext = createContext({
   deleteDive: () => {},
   editDive: () => {},
   viewDive: () => {},
+  getDives: () => {},
 });

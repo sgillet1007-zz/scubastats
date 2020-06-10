@@ -4,15 +4,14 @@
 
 .map-list-section {
   display: flex;
-  height: 400px;
-  /* overflow: hidden; */
 }
 
 .map-panel,
 .table-panel {
   width: 100%;
-  height: 400px;
+  height: 500px;
   padding: 5px;
+  min-width: 500px;
 }
 
 .stats-section {
@@ -24,4 +23,10 @@
 }
 .table-section {
   margin-top: 20px;
+}
+
+@media only screen and (max-width: 1590px) {
+  .map-list-section {
+    flex-direction: column;
+  }
 }
