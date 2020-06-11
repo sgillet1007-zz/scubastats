@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Input from '../../shared/components/FormElements/Input.js';
@@ -8,6 +8,7 @@ import {
   VALIDATOR_MIN,
   VALIDATOR_MAX,
 } from '../../shared/utils/validators';
+import { DiveContext } from '../../shared/context/dive-context';
 import { useForm } from '../../shared/hooks/form-hook';
 
 import './EditDive.css';
@@ -65,6 +66,8 @@ const initialInputState = {
 };
 
 const EditDive = () => {
+  const dContext = useContext(DiveContext);
+  const { selected } = dContext;
   const [isLoading, setIsLoading] = useState(true);
   const [formState, inputHandler, setFormData] = useForm(
     initialInputState,
@@ -91,53 +94,89 @@ const EditDive = () => {
   };
 
   useEffect(() => {
-    axios({
-      method: 'get',
-      url: `http://localhost:5000/api/v1/dives/${diveId}`,
-      headers: { Authorization: `Bearer ${localStorage.getItem('bt')}` },
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          const { data } = response.data;
-          setDive(data);
-          setFormData(
-            {
-              diveSite: {
-                value: data.diveSite,
-                isValid: true,
-              },
-              date: {
-                value: data.date,
-                isValid: true,
-              },
-              timeIn: {
-                value: convertTimeVal(data.timeIn),
-                isValid: true,
-              },
-              timeOut: {
-                value: convertTimeVal(data.timeOut),
-                isValid: true,
-              },
-              lat: {
-                value: data.coords.lat,
-                isValid: true,
-              },
-              lng: {
-                value: data.coords.lng,
-                isValid: true,
-              },
-              maxDepth: {
-                value: data.maxDepth,
-                isValid: true,
-              },
-            },
-            true
-          );
-          setIsLoading(false);
-        }
-      })
-      .catch((err) => console.log(`Problem fetching dive data. ${err}`));
-  }, [diveId, setFormData]);
+    if (selected) {
+      setFormData(
+        {
+          diveSite: {
+            value: selected.diveSite,
+            isValid: true,
+          },
+          date: {
+            value: selected.date,
+            isValid: true,
+          },
+          timeIn: {
+            value: convertTimeVal(selected.timeIn),
+            isValid: true,
+          },
+          timeOut: {
+            value: convertTimeVal(selected.timeOut),
+            isValid: true,
+          },
+          lat: {
+            value: selected.coords.lat,
+            isValid: true,
+          },
+          lng: {
+            value: selected.coords.lng,
+            isValid: true,
+          },
+          maxDepth: {
+            value: selected.maxDepth,
+            isValid: true,
+          },
+        },
+        true
+      );
+      setIsLoading(false);
+    }
+    // axios({
+    //   method: 'get',
+    //   url: `http://localhost:5000/api/v1/dives/${diveId}`,
+    //   headers: { Authorization: `Bearer ${localStorage.getItem('bt')}` },
+    // })
+    //   .then((response) => {
+    //     if (response.status === 200) {
+    // const { data } = response.data;
+    // setDive(data);
+    // setFormData(
+    //   {
+    //     diveSite: {
+    //       value: data.diveSite,
+    //       isValid: true,
+    //     },
+    //     date: {
+    //       value: data.date,
+    //       isValid: true,
+    //     },
+    //     timeIn: {
+    //       value: convertTimeVal(data.timeIn),
+    //       isValid: true,
+    //     },
+    //     timeOut: {
+    //       value: convertTimeVal(data.timeOut),
+    //       isValid: true,
+    //     },
+    //     lat: {
+    //       value: data.coords.lat,
+    //       isValid: true,
+    //     },
+    //     lng: {
+    //       value: data.coords.lng,
+    //       isValid: true,
+    //     },
+    //     maxDepth: {
+    //       value: data.maxDepth,
+    //       isValid: true,
+    //     },
+    //   },
+    //   true
+    // );
+    // setIsLoading(false);
+    //   }
+    // })
+    // .catch((err) => console.log(`Problem fetching dive data. ${err}`));
+  }, [setFormData, selected]);
 
   const updateDiveSubmitHandler = (e) => {
     e.preventDefault();
@@ -166,7 +205,7 @@ const EditDive = () => {
       .catch((err) => console.log(`Problem updating dive. ${err}`));
   };
 
-  if (isLoading) {
+  if (selected === null) {
     return (
       <div className='center'>
         <h2>Loading...</h2>
@@ -174,13 +213,14 @@ const EditDive = () => {
     );
   } else {
     inputChangeStatus = {
-      diveSite: dive.diveSite !== formState.inputs.diveSite.value,
-      date: dive.date !== formState.inputs.date.value,
-      lat: dive.coords.lat !== formState.inputs.lat.value,
-      lng: dive.coords.lng !== formState.inputs.lng.value,
-      timeIn: convertTimeVal(dive.timeIn) !== formState.inputs.timeIn.value,
-      timeOut: convertTimeVal(dive.timeOut) !== formState.inputs.timeOut.value,
-      maxDepth: dive.maxDepth !== formState.inputs.maxDepth.value,
+      diveSite: selected.diveSite !== formState.inputs.diveSite.value,
+      date: selected.date !== formState.inputs.date.value,
+      lat: selected.coords.lat !== formState.inputs.lat.value,
+      lng: selected.coords.lng !== formState.inputs.lng.value,
+      timeIn: convertTimeVal(selected.timeIn) !== formState.inputs.timeIn.value,
+      timeOut:
+        convertTimeVal(selected.timeOut) !== formState.inputs.timeOut.value,
+      maxDepth: selected.maxDepth !== formState.inputs.maxDepth.value,
     };
   }
 

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
+import { DiveContext } from '../../shared/context/dive-context';
 
 import './DiveStats.css';
 
@@ -23,13 +24,15 @@ const getLongest = (dives) => {
   return Math.max(...durationArray);
 };
 
-const DiveStats = (props) => {
+const DiveStats = () => {
+  const dContext = useContext(DiveContext);
+  const { dives } = dContext;
   return (
     <>
       <Card className='stats-card'>
         <CardContent>
           <Typography variant='h5' component='h2'>
-            {props.dives.length}
+            {dives.length}
           </Typography>
           <Typography color='textSecondary' gutterBottom>
             Dives Logged
@@ -39,7 +42,7 @@ const DiveStats = (props) => {
       <Card className='stats-card'>
         <CardContent>
           <Typography variant='h5' component='h2'>
-            {props.dives.length ? getTotalHours(props.dives) : 0}
+            {dives.length ? getTotalHours(dives) : 0}
           </Typography>
           <Typography color='textSecondary' gutterBottom>
             Hours Underwater
@@ -49,7 +52,7 @@ const DiveStats = (props) => {
       <Card className='stats-card'>
         <CardContent>
           <Typography variant='h5' component='h2'>
-            {`${props.dives.length ? getDeepestDive(props.dives) : 0} ft`}
+            {`${dives.length ? getDeepestDive(dives) : 0} ft`}
           </Typography>
           <Typography color='textSecondary' gutterBottom>
             Deepest Dive
@@ -59,7 +62,7 @@ const DiveStats = (props) => {
       <Card className='stats-card'>
         <CardContent>
           <Typography variant='h5' component='h2'>
-            {`${props.dives.length ? getLongest(props.dives) : 0} mins`}
+            {`${dives.length ? getLongest(dives) : 0} mins`}
           </Typography>
           <Typography color='textSecondary' gutterBottom>
             Longest Dive

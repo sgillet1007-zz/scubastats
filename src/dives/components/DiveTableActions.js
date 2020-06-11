@@ -10,14 +10,11 @@ import { DiveContext } from '../../shared/context/dive-context';
 const DiveTableActions = (props) => {
   const dContext = useContext(DiveContext);
   const { dataid } = props;
-  const viewClickHandler = (e) => {
-    dContext.viewDive(dataid);
-  };
-  const editClickHandler = (e) => {
-    dContext.editDive(dataid);
-  };
   const deleteClickHandler = (e) => {
     dContext.deleteDive(dataid);
+  };
+  const updateSelectedDive = (e) => {
+    dContext.selected = dContext.selectDive(dataid, dContext.dives);
   };
 
   return (
@@ -30,7 +27,7 @@ const DiveTableActions = (props) => {
           className='dive-action-icon'
           fontSize='small'
           color='primary'
-          onClick={viewClickHandler}
+          onClick={updateSelectedDive}
           focusable={true}
         />
       </Link>
@@ -42,7 +39,7 @@ const DiveTableActions = (props) => {
           className='dive-action-icon'
           fontSize='small'
           color='action'
-          onClick={editClickHandler}
+          onClick={updateSelectedDive}
           focusable={true}
         />
       </Link>

@@ -160,7 +160,9 @@ const AddDiveForm = () => {
   };
 
   return (
-    <div>
+    <Paper className='dive-view'>
+      <h1>ADD DIVE</h1>
+      <hr />
       <Paper className='add-dive'>
         <Map
           center={[20.3553, -87.0291]}
@@ -329,7 +331,7 @@ const AddDiveForm = () => {
           Log it!
         </Button>
       </form>
-    </div>
+    </Paper>
   );
 };
 
