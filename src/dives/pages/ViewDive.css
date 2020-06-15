@@ -13,6 +13,9 @@
 .display-group .left-group,
 .display-group .right-group {
   min-width: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .dive-view .map-container,
