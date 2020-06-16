@@ -393,8 +393,8 @@ const EditDive = () => {
             <div className="left-group">
               <Input
                 id="diveType"
-                element="input"
-                type="text"
+                element="select"
+                options={["boat", "shore"]}
                 label="Dive Type"
                 onInput={inputHandler}
                 initialValue={formState.inputs.diveType.value}
@@ -402,8 +402,8 @@ const EditDive = () => {
               />
               <Input
                 id="dayOrNight"
-                element="input"
-                type="text"
+                element="select"
+                options={["day", "night"]}
                 label="Day/Night"
                 onInput={inputHandler}
                 initialValue={formState.inputs.dayOrNight.value}
@@ -422,8 +422,8 @@ const EditDive = () => {
             <div className="right-group">
               <Input
                 id="waterType"
-                element="input"
-                type="text"
+                element="select"
+                options={["fresh", "salt", "brackish"]}
                 label="Water Type"
                 onInput={inputHandler}
                 initialValue={formState.inputs.waterType.value}
@@ -440,8 +440,8 @@ const EditDive = () => {
               />
               <Input
                 id="current"
-                element="input"
-                type="text"
+                element="select"
+                options={["strong", "moderate", "gentle", "none"]}
                 label="Current"
                 onInput={inputHandler}
                 initialValue={formState.inputs.current.value}
@@ -449,8 +449,8 @@ const EditDive = () => {
               />
               <Input
                 id="waves"
-                element="input"
-                type="text"
+                element="select"
+                options={["large", "moderate", "small", "calm"]}
                 label="Waves"
                 onInput={inputHandler}
                 initialValue={formState.inputs.waves.value}
@@ -463,8 +463,17 @@ const EditDive = () => {
             <div className="left-group">
               <Input
                 id="suitType"
-                element="input"
-                type="text"
+                element="select"
+                options={[
+                  "swimsuit",
+                  "dive skin",
+                  "shorty",
+                  "3mm wetsuit",
+                  "5mm wetsuit",
+                  "7mm wetsuit",
+                  "semi-dry wetsuit",
+                  "dry suit",
+                ]}
                 label="Suit Type"
                 onInput={inputHandler}
                 initialValue={formState.inputs.suitType.value}
@@ -481,8 +490,8 @@ const EditDive = () => {
               />
               <Input
                 id="diveComputer"
-                element="input"
-                type="text"
+                element="select"
+                options={["console", "wrist", "watch"]}
                 label="Dive Computer Type"
                 onInput={inputHandler}
                 initialValue={formState.inputs.diveComputer.value}

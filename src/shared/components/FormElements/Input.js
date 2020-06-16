@@ -77,8 +77,9 @@ const Input = (props) => {
       break;
     case "textarea":
       element = (
-        <FormControl margin="normal">
+        <FormControl width="100%" margin="normal">
           <TextField
+            width="100%"
             id={props.id}
             variant="filled"
             label={props.label}
@@ -122,17 +123,7 @@ const Input = (props) => {
       break;
   }
 
-  return (
-    <div
-      className={`form-control ${
-        !inputState.isValid && inputState.isTouched && "form-control--invalid"
-      }`}
-    >
-      {/* <label htmlFor={props.id}>{props.label}</label> */}
-      {element}
-      {!inputState.isValid && inputState.isTouched && <p>{props.errorText}</p>}
-    </div>
-  );
+  return element;
 };
 
 export default Input;
