@@ -6,10 +6,12 @@ import { Map, Marker, Popup, TileLayer } from "react-leaflet";
 import diveIcon from "../../dive-marker.png";
 import Input from "../../shared/components/FormElements/Input.js";
 import Button from "../../shared/components/FormElements/Button";
+
 import {
   VALIDATOR_REQUIRE,
   VALIDATOR_MIN,
   VALIDATOR_MAX,
+  VALIDATOR_MAXLENGTH,
 } from "../../shared/utils/validators";
 import { DiveContext } from "../../shared/context/dive-context";
 import { useForm } from "../../shared/hooks/form-hook";
@@ -43,29 +45,7 @@ const convertTimeVal = (num) => {
   }
 };
 
-// const calculateIfChanged = (current, inputs) => {
-//   let isChanged = false;
-//   // add logic checks
-//   let inputChangeStatus = {
-//     diveSite: current.diveSite !== inputs.diveSite.value,
-//     date: current.date !== inputs.date.value,
-//     lat: current.coords.lat !== inputs.lat.value,
-//     lng: current.coords.lng !== inputs.lng.value,
-//     timeIn: convertTimeVal(current.timeIn) !== inputs.timeIn.value,
-//     timeOut: convertTimeVal(current.timeOut) !== inputs.timeOut.value,
-//     maxDepth: current.maxDepth !== inputs.maxDepth.value,
-//   };
-
-//   Object.entries(inputChangeStatus).forEach((key, value) => {
-//     if ((value = true)) {
-//       isChanged = true;
-//     }
-//   });
-//   return isChanged;
-// };
-
 const EditDive = () => {
-  // const diveId = useParams().diveId;
   const dContext = useContext(DiveContext);
   const { selected } = dContext;
 
@@ -146,7 +126,7 @@ const EditDive = () => {
       value: selected.weightUsed,
       isvalid: true,
     },
-    computer: {
+    diveComputer: {
       value: selected.diveComputer,
       isValid: true,
     },
@@ -223,7 +203,8 @@ const EditDive = () => {
       waves: selected.waves !== formState.inputs.waves.value,
       suitType: selected.suitType !== formState.inputs.suitType.value,
       weightUsed: selected.weightUsed !== formState.inputs.weightUsed.value,
-      computer: selected.diveComputer !== formState.inputs.computer.value,
+      diveComputer:
+        selected.diveComputer !== formState.inputs.diveComputer.value,
       buddy: selected.buddy !== formState.inputs.buddy.value,
       notes: selected.notes !== formState.inputs.notes.value,
     };
@@ -231,13 +212,11 @@ const EditDive = () => {
 
   useEffect(() => {
     if (selected) {
-      setFormData(initialInputState, true);
-      console.log("initialInputState: ", initialInputState);
+      setFormData(initialInputState, formState.isValid);
     } else {
       console.log("*** SELECTED is not defined after refresh***");
     }
-    console.log("inputChangeStatus: ", inputChangeStatus);
-  }, []);
+  }, [selected]);
 
   const updateDiveSubmitHandler = (e) => {
     e.preventDefault();
@@ -297,7 +276,7 @@ const EditDive = () => {
                 type="text"
                 label="Dive Site"
                 validators={[VALIDATOR_REQUIRE()]}
-                errorText="Please enter the dive site name"
+                errorText="required"
                 onInput={inputHandler}
                 initialValue={formState.inputs.diveSite.value}
                 initialValid={true}
@@ -308,7 +287,7 @@ const EditDive = () => {
                 type="date"
                 label="Date"
                 validators={[VALIDATOR_REQUIRE()]}
-                errorText="Please the date of the dive"
+                errorText="required"
                 onInput={inputHandler}
                 initialValue={formState.inputs.date.value}
                 initialValid={true}
@@ -319,7 +298,7 @@ const EditDive = () => {
                 type="number"
                 label="Latitude"
                 validators={[VALIDATOR_MIN(-90), VALIDATOR_MAX(90)]}
-                errorText="Please enter a latitude between -90 and 90"
+                errorText="latitude value between -90 and 90"
                 onInput={inputHandler}
                 initialValue={formState.inputs.lat.value}
                 initialValid={true}
@@ -330,7 +309,7 @@ const EditDive = () => {
                 type="number"
                 label="Longitude"
                 validators={[VALIDATOR_MIN(-180), VALIDATOR_MAX(180)]}
-                errorText="Please enter a longitude between -180 and 180"
+                errorText="longitude value between -180 and 180"
                 onInput={inputHandler}
                 initialValue={formState.inputs.lng.value}
                 initialValid={true}
@@ -346,7 +325,7 @@ const EditDive = () => {
                 type="time"
                 label="Time In"
                 validators={[VALIDATOR_REQUIRE()]}
-                errorText="Please enter a start time for your dive"
+                errorText="required"
                 onInput={inputHandler}
                 initialValue={formState.inputs.timeIn.value}
                 initialValid={true}
@@ -357,7 +336,7 @@ const EditDive = () => {
                 type="time"
                 label="Time Out"
                 validators={[VALIDATOR_REQUIRE()]}
-                errorText="Please enter an end time for your dive"
+                errorText="required"
                 onInput={inputHandler}
                 initialValue={formState.inputs.timeOut.value}
                 initialValid={true}
@@ -368,7 +347,7 @@ const EditDive = () => {
                 type="number"
                 label="Max Depth"
                 validators={[VALIDATOR_REQUIRE()]}
-                errorText="Please enter max depth"
+                errorText="required"
                 onInput={inputHandler}
                 initialValue={formState.inputs.maxDepth.value}
                 initialValid={true}
@@ -381,7 +360,7 @@ const EditDive = () => {
                 type="number"
                 label="Air In (psi)"
                 validators={[VALIDATOR_MIN(0), VALIDATOR_MAX(4000)]}
-                errorText="psi value should be between 0 and 4000"
+                errorText="psi value between 0 and 4000"
                 onInput={inputHandler}
                 initialValue={formState.inputs.psiIn.value}
                 initialValid={true}
@@ -392,14 +371,15 @@ const EditDive = () => {
                 type="number"
                 label="Air Out (psi)"
                 validators={[VALIDATOR_MIN(0), VALIDATOR_MAX(4000)]}
-                errorText="psi value should be between 0 and 4000"
+                errorText="psi value between 0 and 4000"
                 onInput={inputHandler}
                 initialValue={formState.inputs.psiOut.value}
                 initialValid={true}
               />
               <Input
                 id="gasType"
-                element="input"
+                element="select"
+                options={["air", "nitrox", "trimix", "heliox"]}
                 type="text"
                 label="Gas Type"
                 onInput={inputHandler}
@@ -500,12 +480,12 @@ const EditDive = () => {
                 initialValid={true}
               />
               <Input
-                id="computer"
+                id="diveComputer"
                 element="input"
                 type="text"
                 label="Dive Computer Type"
                 onInput={inputHandler}
-                initialValue={formState.inputs.computer.value}
+                initialValue={formState.inputs.diveComputer.value}
                 initialValid={true}
               />
             </div>
@@ -526,6 +506,7 @@ const EditDive = () => {
                 onInput={inputHandler}
                 initialValue={formState.inputs.notes.value}
                 initialValid={true}
+                validators={[VALIDATOR_MAXLENGTH(280)]}
               />
             </div>
           </div>
@@ -538,18 +519,6 @@ const EditDive = () => {
       </Paper>
     )
   );
-
-  // inputChangeStatus = {
-  //   diveSite: currentDive.diveSite !== formState.inputs.diveSite.value,
-  //   date: currentDive.date !== formState.inputs.date.value,
-  //   lat: currentDive.coords.lat !== formState.inputs.lat.value,
-  //   lng: currentDive.coords.lng !== formState.inputs.lng.value,
-  //   timeIn:
-  //     convertTimeVal(currentDive.timeIn) !== formState.inputs.timeIn.value,
-  //   timeOut:
-  //     convertTimeVal(currentDive.timeOut) !== formState.inputs.timeOut.value,
-  //   maxDepth: currentDive.maxDepth !== formState.inputs.maxDepth.value,
-  // };
 };
 
 export default EditDive;
