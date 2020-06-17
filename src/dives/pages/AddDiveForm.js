@@ -18,18 +18,19 @@ import { AuthContext } from "../../shared/context/auth-context";
 import { useForm } from "../../shared/hooks/form-hook";
 import Paper from "@material-ui/core/Paper";
 import { icon, Point } from "leaflet";
-import { Map, Marker, Popup, TileLayer } from "react-leaflet";
+import { Map, Marker, Tooltip, TileLayer } from "react-leaflet";
 import "./AddDiveForm.css";
 import diveSiteIcon from "../../dive-marker-grey@2x.png";
+import pickedSiteIcon from "../../dive-marker@2x.png";
 
 const parseTimeInputValue = (rawVal) => {
   // f.e. format "12:25" => b.e. format 1225
   return parseInt(rawVal.replace(":", ""));
 };
 
-const renderCustomMarker = () =>
+const renderCustomMarker = (pickedLocation) =>
   new icon({
-    iconUrl: diveSiteIcon,
+    iconUrl: pickedLocation ? pickedSiteIcon : diveSiteIcon,
     iconSize: new Point(8, 8),
   });
 
@@ -130,9 +131,12 @@ const AddDiveForm = () => {
     "Content-Type": "application/json",
     Authorization: "Bearer " + auth.token,
   };
-  const [diveSites, setDiveSites] = useState([]);
+
   const mapRef = useRef();
-  const [currentZoom, setCurrentZoom] = useState(7);
+
+  const [diveSites, setDiveSites] = useState([]);
+  const [pickedSite, setPickedSite] = useState({});
+
   const [formState, inputHandler, setFormData] = useForm(
     initialInputState,
     false
@@ -149,11 +153,6 @@ const AddDiveForm = () => {
     const minLng = Math.min(...lngs);
 
     return { maxLat, minLat, maxLng, minLng };
-  };
-
-  const fetchSetCurrentMapZoom = () => {
-    const currentZoom = mapRef.current.leafletElement.getZoom();
-    setCurrentZoom(currentZoom);
   };
 
   const fetchAndSetDiveSitesOnMap = useCallback(() => {
@@ -181,8 +180,8 @@ const AddDiveForm = () => {
   }, []);
 
   useEffect(() => {
-    fetchAndSetDiveSitesOnMap();
-  }, [fetchAndSetDiveSitesOnMap]);
+    setFormData(initialInputState, false);
+  }, [setFormData]);
 
   const addDiveSubmitHandler = (e) => {
     e.preventDefault();
@@ -192,15 +191,15 @@ const AddDiveForm = () => {
       .post(
         "http://localhost:5000/api/v1/dives",
         {
-          diveSite: formState.inputs.diveSite.value,
+          diveSite: pickedSite.siteName,
           date: formState.inputs.date.value,
           timeIn: parsedTimeIn,
           timeOut: parsedTimeOut,
           maxDepth: parseInt(formState.inputs.maxDepth.value),
           user: auth.user,
           coords: {
-            lat: parseFloat(formState.inputs.lat.value),
-            lng: parseFloat(formState.inputs.lng.value),
+            lat: parseFloat(pickedSite.lat),
+            lng: parseFloat(pickedSite.lng),
           },
         },
         {
@@ -209,7 +208,7 @@ const AddDiveForm = () => {
       )
       .then(() => {
         setFormData(initialInputState, false);
-        // TODO - navigate back to dashboard
+        // TODO - navigate back to dashboard or reset form
       })
       .catch((err) => console.log(`Problem adding new dive. ${err}`));
   };
@@ -220,324 +219,315 @@ const AddDiveForm = () => {
         {`Add Dive Details `}
         <small>{"(below)"}</small>
       </h1>
-
       <hr />
-      <form onSubmit={addDiveSubmitHandler}>
-        <div className="display-group">
-          <div className="left-group">
-            <div className="map-container">
-              <Map
-                center={[20.3553, -87.0291]}
-                zoom={7}
-                scrollWheelZoom={true}
-                ref={mapRef}
-                onmoveend={(e) => {
-                  fetchSetCurrentMapZoom();
-                  if (currentZoom > 6) {
-                    fetchAndSetDiveSitesOnMap();
-                  }
-                }}
-              >
-                <TileLayer
-                  url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png"
-                  attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                />
-                {diveSites.length &&
-                  diveSites.map((d) => {
-                    return (
-                      <Marker
-                        position={[d.lat, d.lng]}
-                        key={`${d.siteName}${Math.random()}`}
-                        icon={renderCustomMarker()}
-                      >
-                        <Popup>
-                          {`${d.siteName}`}
-                          <br />
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              console.log("d.siteName: ", d.siteName);
-                              console.log("d.lat: ", d.lat);
-                              console.log("d.lng: ", d.lng);
-                              setFormData(
-                                {
-                                  ...formState.inputs,
-                                  diveSite: {
-                                    isValid: true,
-                                    value: d.siteName,
-                                  },
-                                  lat: { isValid: true, value: d.lat },
-                                  lng: { isValid: true, value: d.lng },
+      {formState.inputs.psiIn.value === 3000 && (
+        <form onSubmit={addDiveSubmitHandler}>
+          <div className="display-group">
+            <div className="left-group">
+              {!pickedSite.siteName && (
+                <>
+                  <div style={{ margin: "0 auto" }}>PICK A LOCATION</div>
+                  <div style={{ margin: "0 auto" }}>
+                    Zoom in to load divesite locations
+                  </div>
+                </>
+              )}
+              <div className="map-container">
+                <Map
+                  center={[20.3553, -87.0291]}
+                  zoom={4}
+                  scrollWheelZoom={true}
+                  ref={mapRef}
+                  onmoveend={(e) => {
+                    if (mapRef.current.leafletElement.getZoom() > 6) {
+                      fetchAndSetDiveSitesOnMap();
+                    }
+                  }}
+                >
+                  <TileLayer
+                    url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png"
+                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  {diveSites.length &&
+                    diveSites.map((d) => {
+                      return (
+                        <Marker
+                          position={[d.lat, d.lng]}
+                          key={`${d.siteName}${Math.random()}`}
+                          icon={renderCustomMarker()}
+                          onClick={() => {
+                            setFormData(
+                              {
+                                ...formState.inputs,
+                                diveSite: {
+                                  value: d.siteName,
+                                  isValid: true,
                                 },
-                                formState.isValid
-                              );
-                            }}
-                          >
-                            Pick This Site
-                          </button>
-                        </Popup>
-                      </Marker>
-                    );
-                  })}
-              </Map>
+                                lat: { value: d.lat, isValid: true },
+                                lng: { value: d.lng, isValid: true },
+                              },
+                              formState.isValid
+                            );
+                            setPickedSite({
+                              siteName: d.siteName,
+                              lat: d.lat,
+                              lng: d.lng,
+                            });
+                          }}
+                        >
+                          <Tooltip>{`${d.siteName}`}</Tooltip>
+                        </Marker>
+                      );
+                    })}
+                  {pickedSite.siteName && (
+                    <Marker
+                      position={[pickedSite.lat, pickedSite.lng]}
+                      key={`${pickedSite.siteName}${Math.random()}`}
+                      icon={renderCustomMarker(true)}
+                    ></Marker>
+                  )}
+                </Map>
+              </div>
+            </div>
+            <div className="right-group">
+              <div>
+                <b>{`Dive Site: `}</b>
+                {`${pickedSite.siteName || "not specified"}`}
+              </div>
+
+              <div>
+                <b>{`Lattitude: `}</b>
+                {`${pickedSite.lat || "not specified"}`}
+              </div>
+              <div>
+                <b>{`Longitude: `}</b>
+                {`${pickedSite.lng || "not specified"}`}
+              </div>
+              <Input
+                id="date"
+                element="input"
+                type="date"
+                label="Date"
+                validators={[VALIDATOR_REQUIRE()]}
+                errorText="required"
+                onInput={inputHandler}
+                initialValue={formState.inputs.date.value}
+              />
             </div>
           </div>
-          <div className="right-group">
-            <Input
-              id="diveSite"
-              element="input"
-              type="text"
-              label="Dive Site"
-              validators={[VALIDATOR_REQUIRE()]}
-              errorText="required"
-              onInput={inputHandler}
-              initialValue={formState.inputs.diveSite.value}
-              initialValid={false}
-            />
-            <Input
-              id="date"
-              element="input"
-              type="date"
-              label="Date"
-              validators={[VALIDATOR_REQUIRE()]}
-              errorText="required"
-              onInput={inputHandler}
-              initialValue={formState.inputs.date.value}
-              initialValid={false}
-            />
-            <Input
-              id="lat"
-              element="input"
-              type="number"
-              label="Latitude"
-              validators={[VALIDATOR_MIN(-90), VALIDATOR_MAX(90)]}
-              errorText="latitude value between -90 and 90"
-              onInput={inputHandler}
-              initialValue={formState.inputs.lat.value}
-              initialValid={false}
-            />
-            <Input
-              id="lng"
-              element="input"
-              type="number"
-              label="Longitude"
-              validators={[VALIDATOR_MIN(-180), VALIDATOR_MAX(180)]}
-              errorText="longitude value between -180 and 180"
-              onInput={inputHandler}
-              initialValue={formState.inputs.lng.value}
-              initialValid={false}
-            />
+          <hr />
+          <div className="display-group">
+            <div className="left-group">
+              <Input
+                id="timeIn"
+                element="input"
+                type="time"
+                label="Time In"
+                validators={[VALIDATOR_REQUIRE()]}
+                errorText="required"
+                onInput={inputHandler}
+                initialValue={formState.inputs.timeIn.value}
+                initialValid={false}
+              />
+              <Input
+                id="timeOut"
+                element="input"
+                type="time"
+                label="Time Out"
+                validators={[VALIDATOR_REQUIRE()]}
+                errorText="required"
+                onInput={inputHandler}
+                initialValue={formState.inputs.timeOut.value}
+                initialValid={false}
+              />
+              <Input
+                id="maxDepth"
+                element="input"
+                type="number"
+                label="Max Depth"
+                validators={[VALIDATOR_REQUIRE()]}
+                errorText="required"
+                onInput={inputHandler}
+                initialValue={formState.inputs.maxDepth.value}
+                initialValid={false}
+              />
+            </div>
+            <div className="right-group">
+              <Input
+                id="airIn"
+                element="input"
+                type="number"
+                label="Air In (psi)"
+                validators={[VALIDATOR_MIN(0), VALIDATOR_MAX(4000)]}
+                errorText="psi value between 0 and 4000"
+                onInput={inputHandler}
+                initialValue={formState.inputs.psiIn.value}
+                initialValid={true}
+              />
+              <Input
+                id="airOut"
+                element="input"
+                type="number"
+                label="Air Out (psi)"
+                validators={[VALIDATOR_MIN(0), VALIDATOR_MAX(4000)]}
+                errorText="psi value between 0 and 4000"
+                onInput={inputHandler}
+                initialValue={formState.inputs.psiOut.value}
+                initialValid={true}
+              />
+              <Input
+                id="gasType"
+                element="select"
+                options={["air", "nitrox", "trimix", "heliox"]}
+                type="text"
+                label="Gas Type"
+                onInput={inputHandler}
+                initialValue={formState.inputs.gasType.value}
+                initialValid={true}
+              />
+            </div>
           </div>
-        </div>
-        <hr />
-        <div className="display-group">
-          <div className="left-group">
-            <Input
-              id="timeIn"
-              element="input"
-              type="time"
-              label="Time In"
-              validators={[VALIDATOR_REQUIRE()]}
-              errorText="required"
-              onInput={inputHandler}
-              initialValue={formState.inputs.timeIn.value}
-              initialValid={false}
-            />
-            <Input
-              id="timeOut"
-              element="input"
-              type="time"
-              label="Time Out"
-              validators={[VALIDATOR_REQUIRE()]}
-              errorText="required"
-              onInput={inputHandler}
-              initialValue={formState.inputs.timeOut.value}
-              initialValid={false}
-            />
-            <Input
-              id="maxDepth"
-              element="input"
-              type="number"
-              label="Max Depth"
-              validators={[VALIDATOR_REQUIRE()]}
-              errorText="required"
-              onInput={inputHandler}
-              initialValue={formState.inputs.maxDepth.value}
-              initialValid={false}
-            />
+          <hr />
+          <div className="display-group">
+            <div className="left-group">
+              <Input
+                id="diveType"
+                element="select"
+                options={["boat", "shore"]}
+                label="Dive Type"
+                onInput={inputHandler}
+                initialValue={formState.inputs.diveType.value}
+                initialValid={true}
+              />
+              <Input
+                id="dayOrNight"
+                element="select"
+                options={["day", "night"]}
+                label="Day/Night"
+                onInput={inputHandler}
+                initialValue={formState.inputs.dayOrNight.value}
+                initialValid={true}
+              />
+              <Input
+                id="waterTemp"
+                element="input"
+                type="number"
+                label="Water Temp. (F)"
+                onInput={inputHandler}
+                initialValue={formState.inputs.waterTemp.value}
+                initialValid={true}
+              />
+            </div>
+            <div className="right-group">
+              <Input
+                id="waterType"
+                element="select"
+                options={["fresh", "salt", "brackish"]}
+                label="Water Type"
+                onInput={inputHandler}
+                initialValue={formState.inputs.waterType.value}
+                initialValid={true}
+              />
+              <Input
+                id="visibility"
+                element="input"
+                type="number"
+                label="Visibility"
+                onInput={inputHandler}
+                initialValue={formState.inputs.visibility.value}
+                initialValid={true}
+              />
+              <Input
+                id="current"
+                element="select"
+                options={["strong", "moderate", "gentle", "none"]}
+                label="Current"
+                onInput={inputHandler}
+                initialValue={formState.inputs.current.value}
+                initialValid={true}
+              />
+              <Input
+                id="waves"
+                element="select"
+                options={["large", "moderate", "small", "calm"]}
+                label="Waves"
+                onInput={inputHandler}
+                initialValue={formState.inputs.waves.value}
+                initialValid={true}
+              />
+            </div>
           </div>
-          <div className="right-group">
-            <Input
-              id="airIn"
-              element="input"
-              type="number"
-              label="Air In (psi)"
-              validators={[VALIDATOR_MIN(0), VALIDATOR_MAX(4000)]}
-              errorText="psi value between 0 and 4000"
-              onInput={inputHandler}
-              initialValue={formState.inputs.psiIn.value}
-              initialValid={true}
-            />
-            <Input
-              id="airOut"
-              element="input"
-              type="number"
-              label="Air Out (psi)"
-              validators={[VALIDATOR_MIN(0), VALIDATOR_MAX(4000)]}
-              errorText="psi value between 0 and 4000"
-              onInput={inputHandler}
-              initialValue={formState.inputs.psiOut.value}
-              initialValid={true}
-            />
-            <Input
-              id="gasType"
-              element="select"
-              options={["air", "nitrox", "trimix", "heliox"]}
-              type="text"
-              label="Gas Type"
-              onInput={inputHandler}
-              initialValue={formState.inputs.gasType.value}
-              initialValid={true}
-            />
+          <hr />
+          <div className="display-group">
+            <div className="left-group">
+              <Input
+                id="suitType"
+                element="select"
+                options={[
+                  "swimsuit",
+                  "dive skin",
+                  "shorty",
+                  "3mm wetsuit",
+                  "5mm wetsuit",
+                  "7mm wetsuit",
+                  "semi-dry wetsuit",
+                  "dry suit",
+                ]}
+                label="Suit Type"
+                onInput={inputHandler}
+                initialValue={formState.inputs.suitType.value}
+                initialValid={true}
+              />
+              <Input
+                id="weightUsed"
+                element="input"
+                type="number"
+                label="Weights (lbs)"
+                onInput={inputHandler}
+                initialValue={formState.inputs.weightUsed.value}
+                initialValid={true}
+              />
+              <Input
+                id="diveComputer"
+                element="select"
+                options={["console", "wrist", "watch"]}
+                label="Dive Computer Type"
+                onInput={inputHandler}
+                initialValue={formState.inputs.diveComputer.value}
+                initialValid={true}
+              />
+            </div>
+            <div className="right-group">
+              <Input
+                id="buddy"
+                element="input"
+                type="text"
+                label="Dive Buddy"
+                onInput={inputHandler}
+                initialValue={formState.inputs.buddy.value}
+                initialValid={true}
+              />
+              <Input
+                id="notes"
+                element="textarea"
+                label="Notes"
+                onInput={inputHandler}
+                initialValue={formState.inputs.notes.value}
+                initialValid={true}
+                validators={[VALIDATOR_MAXLENGTH(280)]}
+              />
+            </div>
           </div>
-        </div>
-        <hr />
-        <div className="display-group">
-          <div className="left-group">
-            <Input
-              id="diveType"
-              element="select"
-              options={["boat", "shore"]}
-              label="Dive Type"
-              onInput={inputHandler}
-              initialValue={formState.inputs.diveType.value}
-              initialValid={true}
-            />
-            <Input
-              id="dayOrNight"
-              element="select"
-              options={["day", "night"]}
-              label="Day/Night"
-              onInput={inputHandler}
-              initialValue={formState.inputs.dayOrNight.value}
-              initialValid={true}
-            />
-            <Input
-              id="waterTemp"
-              element="input"
-              type="number"
-              label="Water Temp. (F)"
-              onInput={inputHandler}
-              initialValue={formState.inputs.waterTemp.value}
-              initialValid={true}
-            />
+          <div className="display-group">
+            <Button
+              type="submit"
+              disabled={!pickedSite.siteName && !formState.isValid}
+            >
+              Log it!
+            </Button>
           </div>
-          <div className="right-group">
-            <Input
-              id="waterType"
-              element="select"
-              options={["fresh", "salt", "brackish"]}
-              label="Water Type"
-              onInput={inputHandler}
-              initialValue={formState.inputs.waterType.value}
-              initialValid={true}
-            />
-            <Input
-              id="visibility"
-              element="input"
-              type="number"
-              label="Visibility"
-              onInput={inputHandler}
-              initialValue={formState.inputs.visibility.value}
-              initialValid={true}
-            />
-            <Input
-              id="current"
-              element="select"
-              options={["strong", "moderate", "gentle", "none"]}
-              label="Current"
-              onInput={inputHandler}
-              initialValue={formState.inputs.current.value}
-              initialValid={true}
-            />
-            <Input
-              id="waves"
-              element="select"
-              options={["large", "moderate", "small", "calm"]}
-              label="Waves"
-              onInput={inputHandler}
-              initialValue={formState.inputs.waves.value}
-              initialValid={true}
-            />
-          </div>
-        </div>
-        <hr />
-        <div className="display-group">
-          <div className="left-group">
-            <Input
-              id="suitType"
-              element="select"
-              options={[
-                "swimsuit",
-                "dive skin",
-                "shorty",
-                "3mm wetsuit",
-                "5mm wetsuit",
-                "7mm wetsuit",
-                "semi-dry wetsuit",
-                "dry suit",
-              ]}
-              label="Suit Type"
-              onInput={inputHandler}
-              initialValue={formState.inputs.suitType.value}
-              initialValid={true}
-            />
-            <Input
-              id="weightUsed"
-              element="input"
-              type="number"
-              label="Weights (lbs)"
-              onInput={inputHandler}
-              initialValue={formState.inputs.weightUsed.value}
-              initialValid={true}
-            />
-            <Input
-              id="diveComputer"
-              element="select"
-              options={["console", "wrist", "watch"]}
-              label="Dive Computer Type"
-              onInput={inputHandler}
-              initialValue={formState.inputs.diveComputer.value}
-              initialValid={true}
-            />
-          </div>
-          <div className="right-group">
-            <Input
-              id="buddy"
-              element="input"
-              type="text"
-              label="Dive Buddy"
-              onInput={inputHandler}
-              initialValue={formState.inputs.buddy.value}
-              initialValid={true}
-            />
-            <Input
-              id="notes"
-              element="textarea"
-              label="Notes"
-              onInput={inputHandler}
-              initialValue={formState.inputs.notes.value}
-              initialValid={true}
-              validators={[VALIDATOR_MAXLENGTH(280)]}
-            />
-          </div>
-        </div>
-        <div className="display-group">
-          <Button type="submit" disabled={!formState.isValid}>
-            Log it!
-          </Button>
-        </div>
-      </form>
+        </form>
+      )}
     </Paper>
   );
 };

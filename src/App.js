@@ -58,6 +58,29 @@ const App = () => {
     [dives]
   );
 
+  // helper for calculating diveDuration
+  const calcDiveDuration = (timeIn, timeOut) => {
+    const inHour = Math.floor(timeIn / 100);
+    const outHour = Math.floor(timeOut / 100);
+    const inMins = timeIn % 100;
+    const outMins = timeOut % 100;
+    let diveDuration = 0;
+
+    if (inHour === outHour) {
+      diveDuration = outMins - inMins;
+    } else if (inHour !== outHour) {
+      let divedMinutes = 0;
+      divedMinutes += 60 - inMins + outMins;
+      if (outHour - inHour === 2) {
+        divedMinutes += 60;
+      } else if (outHour - inHour === 3) {
+        divedMinutes += 120;
+      }
+      diveDuration = divedMinutes;
+    }
+    return diveDuration;
+  };
+
   const getAllDives = useCallback(() => {
     axios({
       method: "get",
@@ -73,7 +96,11 @@ const App = () => {
                 return a.date > b.date ? (a.timeIn > b.timeIn ? 1 : -1) : -1;
               })
               .map((d, i) => {
-                return { ...d, diveNumber: i + 1 };
+                return {
+                  ...d,
+                  diveNumber: i + 1,
+                  diveDuration: calcDiveDuration(d.timeIn, d.timeOut),
+                };
               })
           );
         }

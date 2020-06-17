@@ -42,7 +42,6 @@ const Input = (props) => {
   }, [id, value, isValid, onInput]);
 
   const changeHandler = (e) => {
-    console.log("changeHandler called!: ", e.target.value);
     dispatch({
       type: "CHANGE",
       val: e.target.value,
@@ -69,7 +68,7 @@ const Input = (props) => {
             value={inputState.value}
             onChange={changeHandler}
             onBlur={touchHandler}
-            error={!inputState.isValid}
+            error={!inputState.isValid && inputState.isTouched}
             helperText={!inputState.isValid ? props.errorText : ""}
           />
         </FormControl>
@@ -86,7 +85,7 @@ const Input = (props) => {
             value={inputState.value}
             onChange={changeHandler}
             onBlur={touchHandler}
-            error={!inputState.isValid}
+            error={!inputState.isValid && inputState.isTouched}
             helperText={!inputState.isValid ? props.errorText : ""}
             multiline
             rows={4}

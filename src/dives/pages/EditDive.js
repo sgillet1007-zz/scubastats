@@ -1,9 +1,14 @@
-import React, { useEffect, useContext } from "react";
+import React, {
+  useEffect,
+  useContext,
+  useState,
+  useRef,
+  useCallback,
+} from "react";
 import Paper from "@material-ui/core/Paper";
-// import { useParams } from "react-router-dom";
+import axios from "axios";
 import { icon, Point } from "leaflet";
-import { Map, Marker, Popup, TileLayer } from "react-leaflet";
-import diveIcon from "../../dive-marker.png";
+import { Map, Marker, Tooltip, TileLayer } from "react-leaflet";
 import Input from "../../shared/components/FormElements/Input.js";
 import Button from "../../shared/components/FormElements/Button";
 
@@ -15,14 +20,10 @@ import {
 } from "../../shared/utils/validators";
 import { DiveContext } from "../../shared/context/dive-context";
 import { useForm } from "../../shared/hooks/form-hook";
+import diveSiteIcon from "../../dive-marker-grey@2x.png";
+import pickedSiteIcon from "../../dive-marker@2x.png";
 
 import "./EditDive.css";
-
-const renderCustomMarker = () =>
-  new icon({
-    iconUrl: diveIcon,
-    iconSize: new Point(8, 8),
-  });
 
 // f.e. format "12:25" => b.e. format 1225
 const parseTimeInputValue = (rawVal) => {
@@ -48,6 +49,12 @@ const convertTimeVal = (num) => {
 const EditDive = () => {
   const dContext = useContext(DiveContext);
   const { selected } = dContext;
+
+  const mapRef = useRef();
+
+  const [diveSites, setDiveSites] = useState([]);
+  const [isUpdatedLocation, setIsUpdatedLocation] = useState(false);
+  const [pickedSite, setPickedSite] = useState(null);
 
   const initialInputState = selected && {
     diveSite: {
@@ -140,6 +147,12 @@ const EditDive = () => {
     },
   };
 
+  const renderCustomMarker = (pickedLocation) =>
+    new icon({
+      iconUrl: pickedLocation ? pickedSiteIcon : diveSiteIcon,
+      iconSize: new Point(8, 8),
+    });
+
   const [formState, inputHandler, setFormData] = useForm(
     initialInputState,
     true
@@ -182,11 +195,24 @@ const EditDive = () => {
   };
 
   if (selected) {
+    console.log(
+      "psi in changed? ",
+      selected.psiIn !== formState.inputs.psiIn.value
+    );
+    console.log("selected.psiIn: ", selected.psiIn);
+    console.log("formState.inputs.psiIn.value: ", formState.inputs.psiIn.value);
+    console.log(
+      "maxDepth changed? ",
+      selected.maxDepth !== formState.inputs.maxDepth.value
+    );
+    console.log("selected.maxDepth: ", selected.maxDepth);
+    console.log(
+      "formState.inputs.maxDepth.value: ",
+      formState.inputs.maxDepth.value
+    );
     inputChangeStatus = {
-      diveSite: selected.diveSite !== formState.inputs.diveSite.value,
+      diveSite: isUpdatedLocation && pickedSite !== null,
       date: selected.date !== formState.inputs.date.value,
-      lat: selected.coords.lat !== formState.inputs.lat.value,
-      lng: selected.coords.lng !== formState.inputs.lng.value,
       timeIn: convertTimeVal(selected.timeIn) !== formState.inputs.timeIn.value,
       timeOut:
         convertTimeVal(selected.timeOut) !== formState.inputs.timeOut.value,
@@ -209,10 +235,51 @@ const EditDive = () => {
       notes: selected.notes !== formState.inputs.notes.value,
     };
   }
+  const getMapBoundCoords = () => {
+    const mapBounds = mapRef.current.leafletElement.getBounds();
+    let lats = [mapBounds._southWest.lat, mapBounds._northEast.lat];
+    let lngs = [mapBounds._southWest.lng, mapBounds._northEast.lng];
+
+    const maxLat = Math.max(...lats);
+    const maxLng = Math.max(...lngs);
+    const minLat = Math.min(...lats);
+    const minLng = Math.min(...lngs);
+
+    return { maxLat, minLat, maxLng, minLng };
+  };
+
+  const fetchAndSetDiveSitesOnMap = useCallback(() => {
+    axios
+      .get("http://localhost:5000/api/v1/divesites")
+      .then((response) => {
+        if (response.status === 200) {
+          let sitesWithinMapBounds = response.data.results.filter((ds) => {
+            let isWithinMapView = false;
+            const mapCoords = getMapBoundCoords();
+            if (ds.lat > mapCoords.minLat && ds.lat < mapCoords.maxLat) {
+              if (ds.lng > mapCoords.minLng && ds.lng < mapCoords.maxLng) {
+                isWithinMapView = true;
+              }
+            }
+            return isWithinMapView;
+          });
+          setDiveSites(sitesWithinMapBounds);
+        }
+      })
+      .catch((err) => {
+        console.log(`Problem fetching divesite location data. ${err}`);
+        setDiveSites([]);
+      });
+  }, []);
 
   useEffect(() => {
     if (selected) {
       setFormData(initialInputState, formState.isValid);
+      setPickedSite({
+        siteName: selected.diveSite,
+        lat: selected.coords.lat,
+        lng: selected.coords.lng,
+      });
     } else {
       console.log("*** SELECTED is not defined after refresh***");
     }
@@ -230,8 +297,16 @@ const EditDive = () => {
         }
       }
     }
+    requestBody.siteName = pickedSite.siteName;
+    requestBody.coords = { lat: pickedSite.lat, lng: pickedSite.lng };
     dContext.updateDive(selected._id, requestBody);
     inputChangeStatus = initialInputChangeStatus;
+  };
+
+  const resetLocationHandler = (e) => {
+    e.preventDefault();
+    setPickedSite(null);
+    setIsUpdatedLocation(true);
   };
 
   return (
@@ -245,42 +320,87 @@ const EditDive = () => {
         <form onSubmit={updateDiveSubmitHandler}>
           <div className="display-group">
             <div className="left-group">
+              {pickedSite === null && (
+                <>
+                  <div style={{ margin: "0 auto" }}>PICK A LOCATION</div>
+                  <div style={{ margin: "0 auto" }}>
+                    Zoom in to load divesite locations
+                  </div>
+                </>
+              )}
               <div className="map-container">
                 <Map
                   center={[selected.coords.lat, selected.coords.lng]}
-                  zoom={5}
+                  zoom={4}
                   scrollWheelZoom={false}
+                  ref={mapRef}
+                  onmoveend={(e) => {
+                    if (mapRef.current.leafletElement.getZoom() > 6) {
+                      fetchAndSetDiveSitesOnMap();
+                    }
+                  }}
                 >
                   <TileLayer
                     url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png"
                     attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                   />
 
-                  <Marker
-                    position={[selected.coords.lat, selected.coords.lng]}
-                    icon={renderCustomMarker()}
-                  >
-                    <Popup>
-                      {`${selected.diveSite}`}
-                      <br />
-                      {`${selected.date}`}
-                    </Popup>
-                  </Marker>
+                  {diveSites.length &&
+                    !pickedSite &&
+                    diveSites.map((d) => {
+                      return (
+                        <Marker
+                          position={[d.lat, d.lng]}
+                          key={`${d.siteName}${Math.random()}`}
+                          icon={renderCustomMarker()}
+                          onClick={() => {
+                            setFormData(
+                              {
+                                ...formState.inputs,
+                                diveSite: {
+                                  value: d.siteName,
+                                  isValid: true,
+                                },
+                                lat: { value: d.lat, isValid: true },
+                                lng: { value: d.lng, isValid: true },
+                              },
+                              formState.isValid
+                            );
+                            setPickedSite({
+                              siteName: d.siteName,
+                              lat: d.lat,
+                              lng: d.lng,
+                            });
+                          }}
+                        >
+                          <Tooltip>{`${d.siteName}`}</Tooltip>
+                        </Marker>
+                      );
+                    })}
+                  {pickedSite && pickedSite.lat && (
+                    <Marker
+                      position={[pickedSite.lat, pickedSite.lng]}
+                      icon={renderCustomMarker(true)}
+                    ></Marker>
+                  )}
                 </Map>
               </div>
             </div>
             <div className="right-group">
-              <Input
-                id="diveSite"
-                element="input"
-                type="text"
-                label="Dive Site"
-                validators={[VALIDATOR_REQUIRE()]}
-                errorText="required"
-                onInput={inputHandler}
-                initialValue={formState.inputs.diveSite.value}
-                initialValid={true}
-              />
+              <div>
+                <b>{`Dive Site: `}</b>
+                {`${(pickedSite && pickedSite.siteName) || "not specified"}`}
+              </div>
+
+              <div>
+                <b>{`Lattitude: `}</b>
+                {`${(pickedSite && pickedSite.lat) || "not specified"}`}
+              </div>
+              <div>
+                <b>{`Longitude: `}</b>
+                {`${(pickedSite && pickedSite.lng) || "not specified"}`}
+              </div>
+              <Button onClick={resetLocationHandler}>Clear Location</Button>
               <Input
                 id="date"
                 element="input"
@@ -290,28 +410,6 @@ const EditDive = () => {
                 errorText="required"
                 onInput={inputHandler}
                 initialValue={formState.inputs.date.value}
-                initialValid={true}
-              />
-              <Input
-                id="lat"
-                element="input"
-                type="number"
-                label="Latitude"
-                validators={[VALIDATOR_MIN(-90), VALIDATOR_MAX(90)]}
-                errorText="latitude value between -90 and 90"
-                onInput={inputHandler}
-                initialValue={formState.inputs.lat.value}
-                initialValid={true}
-              />
-              <Input
-                id="lng"
-                element="input"
-                type="number"
-                label="Longitude"
-                validators={[VALIDATOR_MIN(-180), VALIDATOR_MAX(180)]}
-                errorText="longitude value between -180 and 180"
-                onInput={inputHandler}
-                initialValue={formState.inputs.lng.value}
                 initialValid={true}
               />
             </div>
@@ -355,7 +453,7 @@ const EditDive = () => {
             </div>
             <div className="right-group">
               <Input
-                id="airIn"
+                id="psiIn"
                 element="input"
                 type="number"
                 label="Air In (psi)"
@@ -366,7 +464,7 @@ const EditDive = () => {
                 initialValid={true}
               />
               <Input
-                id="airOut"
+                id="psiOut"
                 element="input"
                 type="number"
                 label="Air Out (psi)"
