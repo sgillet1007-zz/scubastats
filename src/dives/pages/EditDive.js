@@ -55,6 +55,22 @@ const EditDive = () => {
   const [diveSites, setDiveSites] = useState([]);
   const [isUpdatedLocation, setIsUpdatedLocation] = useState(false);
   const [pickedSite, setPickedSite] = useState(null);
+  const [updatedDive, setUpdatedDive] = useState(null);
+
+  const updateDive = (id, reqBody) => {
+    // localStorage.setItem("selected", null);
+    axios
+      .put(`http://localhost:5000/api/v1/dives/${id}`, reqBody, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          // localStorage.setItem("selected", JSON.stringify(response.data.data));
+          return response.data.data;
+        }
+      })
+      .catch((err) => console.log(`Problem updating dive. ${err}`));
+  };
 
   const initialInputState = selected && {
     diveSite: {
@@ -195,21 +211,6 @@ const EditDive = () => {
   };
 
   if (selected) {
-    console.log(
-      "psi in changed? ",
-      selected.psiIn !== formState.inputs.psiIn.value
-    );
-    console.log("selected.psiIn: ", selected.psiIn);
-    console.log("formState.inputs.psiIn.value: ", formState.inputs.psiIn.value);
-    console.log(
-      "maxDepth changed? ",
-      selected.maxDepth !== formState.inputs.maxDepth.value
-    );
-    console.log("selected.maxDepth: ", selected.maxDepth);
-    console.log(
-      "formState.inputs.maxDepth.value: ",
-      formState.inputs.maxDepth.value
-    );
     inputChangeStatus = {
       diveSite: isUpdatedLocation && pickedSite !== null,
       date: selected.date !== formState.inputs.date.value,
@@ -234,6 +235,8 @@ const EditDive = () => {
       buddy: selected.buddy !== formState.inputs.buddy.value,
       notes: selected.notes !== formState.inputs.notes.value,
     };
+  } else if (updatedDive) {
+    // ...
   }
   const getMapBoundCoords = () => {
     const mapBounds = mapRef.current.leafletElement.getBounds();
@@ -281,11 +284,12 @@ const EditDive = () => {
         lng: selected.coords.lng,
       });
     } else {
-      console.log("*** SELECTED is not defined after refresh***");
+      console.log("*** SELECTED is no longer defined *** ");
+      console.log("updated dive: ", updatedDive);
     }
-  }, [selected]);
+  }, []);
 
-  const updateDiveSubmitHandler = (e) => {
+  const updateDiveSubmitHandler = async (e) => {
     e.preventDefault();
     let requestBody = {}; // only includes changed fields (as tracked by inputChangeStatus)
     for (let [key, value] of Object.entries(inputChangeStatus)) {
@@ -299,7 +303,14 @@ const EditDive = () => {
     }
     requestBody.siteName = pickedSite.siteName;
     requestBody.coords = { lat: pickedSite.lat, lng: pickedSite.lng };
-    dContext.updateDive(selected._id, requestBody);
+    const updated = await updateDive(selected._id, requestBody);
+
+    setUpdatedDive(updated);
+    // localStorage.setItem("selected", updated);
+    // setTimeout(() => {
+    //   console.log("localstorage: ", localStorage.getItem("selected"));
+    //   console.log("local state: ", updated);
+    // }, 2200);
     inputChangeStatus = initialInputChangeStatus;
   };
 

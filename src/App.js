@@ -19,21 +19,49 @@ import { DiveContext } from "./shared/context/dive-context";
 import "./App.css";
 
 const App = () => {
-  const [token, setToken] = useState(localStorage.getItem("bt"));
-  const [user, setUser] = useState(localStorage.getItem("user"));
+  const [token, setToken] = useState(localStorage.getItem("bt") || "");
+  const [user, setUser] = useState(localStorage.getItem("user") || "");
   const [dives, setDives] = useState([]);
 
+  const getAllDives = useCallback(() => {
+    axios({
+      method: "get",
+      url: "http://localhost:5000/api/v1/dives",
+      headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          const diveData = response.data.results.data;
+          setDives(
+            diveData
+              .sort((a, b) => {
+                return a.date > b.date ? (a.timeIn > b.timeIn ? 1 : -1) : -1;
+              })
+              .map((d, i) => {
+                return {
+                  ...d,
+                  diveNumber: i + 1,
+                  diveDuration: calcDiveDuration(d.timeIn, d.timeOut),
+                };
+              })
+          );
+        }
+      })
+      .catch((err) => console.log(`Problem fetching dive data. ${err}`));
+  }, []);
+
   const login = useCallback((user, token) => {
-    localStorage.setItem("bt", token);
     setToken(token);
-    localStorage.setItem("user", user);
     setUser(user);
+    localStorage.setItem("bt", token);
+    localStorage.setItem("user", user);
+    getAllDives();
   }, []);
 
   const logout = useCallback(() => {
     setToken(null);
-    localStorage.removeItem("bt");
     setUser(null);
+    localStorage.removeItem("bt");
     localStorage.removeItem("user");
   }, []);
 
@@ -43,7 +71,6 @@ const App = () => {
       if (diveFromState.length) {
         return diveFromState;
       }
-
       axios({
         method: "get",
         url: `http://localhost:5000/api/v1/dives/${id}`,
@@ -81,33 +108,6 @@ const App = () => {
     return diveDuration;
   };
 
-  const getAllDives = useCallback(() => {
-    axios({
-      method: "get",
-      url: "http://localhost:5000/api/v1/dives",
-      headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          const diveData = response.data.results.data;
-          setDives(
-            diveData
-              .sort((a, b) => {
-                return a.date > b.date ? (a.timeIn > b.timeIn ? 1 : -1) : -1;
-              })
-              .map((d, i) => {
-                return {
-                  ...d,
-                  diveNumber: i + 1,
-                  diveDuration: calcDiveDuration(d.timeIn, d.timeOut),
-                };
-              })
-          );
-        }
-      })
-      .catch((err) => console.log(`Problem fetching dive data. ${err}`));
-  }, []);
-
   const deleteDive = (id) => {
     axios
       .delete(`http://localhost:5000/api/v1/dives/${id}`, {
@@ -137,16 +137,15 @@ const App = () => {
   };
 
   const updateDive = (id, reqBody) => {
+    // localStorage.setItem("selected", null);
     axios
       .put(`http://localhost:5000/api/v1/dives/${id}`, reqBody, {
         headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
       })
       .then((response) => {
         if (response.status === 200) {
-          console.log("Dive data updated!");
-          getAllDives();
-          selectDive(id, dives);
-          return true;
+          // localStorage.setItem("selected", JSON.stringify(response.data.data));
+          return response.data.data;
         }
       })
       .catch((err) => console.log(`Problem updating dive. ${err}`));
@@ -154,7 +153,7 @@ const App = () => {
 
   let routes;
 
-  if (token) {
+  if (token && user) {
     routes = (
       <DiveContext.Provider
         value={{
@@ -205,8 +204,37 @@ const App = () => {
   }
 
   useEffect(() => {
-    getAllDives();
-  }, [getAllDives]);
+    // getAllDives();
+    console.log("token: ", token);
+    console.log("user: ", user);
+    if (token && user) {
+      console.log("dives.length: ", dives.length);
+      axios({
+        method: "get",
+        url: "http://localhost:5000/api/v1/dives",
+        headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            const diveData = response.data.results.data;
+            setDives(
+              diveData
+                .sort((a, b) => {
+                  return a.date > b.date ? (a.timeIn > b.timeIn ? 1 : -1) : -1;
+                })
+                .map((d, i) => {
+                  return {
+                    ...d,
+                    diveNumber: i + 1,
+                    diveDuration: calcDiveDuration(d.timeIn, d.timeOut),
+                  };
+                })
+            );
+          }
+        })
+        .catch((err) => console.log(`Problem fetching dive data. ${err}`));
+    }
+  }, []);
 
   return (
     <AuthContext.Provider
