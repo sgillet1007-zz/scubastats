@@ -19,3 +19,28 @@ main {
 main section {
   width: 100%;
 }
+
+.loading-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.my-alert {
+  display: none;
+  opacity: 0;
+}
+
+.my-alert.open {
+  display: flex;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+  justify-content: center;
+  align-items: center;
+}
+
+main section div,
+.leaflet-container {
+  z-index: 1;
+}

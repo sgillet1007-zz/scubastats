@@ -16,12 +16,17 @@ const inputReducer = (state, action) => {
         value: action.val,
         isValid: validate(action.val, action.validators),
       };
+    case "RESET":
+      return {
+        ...state,
+        value: "",
+        isValid: false,
+      };
     case "TOUCH":
       return {
         ...state,
         isTouched: true,
       };
-
     default:
       return state;
   }
@@ -88,7 +93,7 @@ const Input = (props) => {
             error={!inputState.isValid && inputState.isTouched}
             helperText={!inputState.isValid ? props.errorText : ""}
             multiline
-            rows={4}
+            rows={5}
             rowsMax={8}
           />
         </FormControl>
@@ -97,9 +102,7 @@ const Input = (props) => {
     case "select":
       element = (
         <FormControl margin="normal">
-          <InputLabel shrink id={props.id}>
-            {props.label}
-          </InputLabel>
+          <InputLabel id={props.id}>{props.label}</InputLabel>
           <Select
             id={props.id}
             variant="filled"

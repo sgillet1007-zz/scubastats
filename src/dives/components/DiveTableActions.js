@@ -12,16 +12,22 @@ const DiveTableActions = (props) => {
   const { dataid } = props;
 
   const deleteClickHandler = (e) => {
-    dContext.deleteDive(dataid);
+    // TODO refactor with material component/modal
+    let deleteConfirmed = window.confirm(
+      "Are you sure you want to delete this dive?"
+    );
+    if (deleteConfirmed) {
+      dContext.deleteDive(dataid);
+    }
   };
 
-  const updateSelectedDive = (e) => {
-    dContext.selected = dContext.selectDive(dataid, dContext.dives);
-  };
+  // const updateSelectedDive = (e) => {
+  //   dContext.selected = dContext.selectDive(dataid, dContext.dives);
+  // };
 
   return (
     <div className="dive-action-container">
-      <Link to={`/dives/view/${dataid}`}>
+      <Link to={`/dives/${dataid}/view`}>
         <VisibilityIcon
           arial-label="view"
           id={`view`}
@@ -29,11 +35,11 @@ const DiveTableActions = (props) => {
           className="dive-action-icon"
           fontSize="small"
           color="primary"
-          onClick={updateSelectedDive}
+          // onClick={updateSelectedDive}
           focusable={true}
         />
       </Link>
-      <Link to={`/dives/edit/${dataid}`}>
+      <Link to={`/dives/${dataid}/edit`}>
         <EditIcon
           arial-label="edit"
           id={`edit`}
@@ -41,7 +47,7 @@ const DiveTableActions = (props) => {
           className="dive-action-icon"
           fontSize="small"
           color="action"
-          onClick={updateSelectedDive}
+          // onClick={updateSelectedDive}
           focusable={true}
         />
       </Link>

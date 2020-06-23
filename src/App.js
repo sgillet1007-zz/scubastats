@@ -7,6 +7,7 @@ import {
   Switch,
 } from "react-router-dom";
 import { AuthContext } from "./shared/context/auth-context";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
 import AuthForm from "./user/pages/AuthForm";
@@ -22,8 +23,10 @@ const App = () => {
   const [token, setToken] = useState(localStorage.getItem("bt") || "");
   const [user, setUser] = useState(localStorage.getItem("user") || "");
   const [dives, setDives] = useState([]);
+  const [isLoadingDives, setIsLoadingDives] = useState(false);
 
   const getAllDives = useCallback(() => {
+    setIsLoadingDives(true);
     axios({
       method: "get",
       url: "http://localhost:5000/api/v1/dives",
@@ -45,9 +48,13 @@ const App = () => {
                 };
               })
           );
+          setIsLoadingDives(false);
         }
       })
-      .catch((err) => console.log(`Problem fetching dive data. ${err}`));
+      .catch((err) => {
+        setIsLoadingDives(false);
+        console.log(`Problem fetching dive data. ${err}`);
+      });
   }, []);
 
   const login = useCallback((user, token) => {
@@ -131,37 +138,24 @@ const App = () => {
         console.log(`Problem deleting the requested dive. ${err}`)
       );
   };
-  const selectDive = (id, dives) => {
-    const diveObj = dives.find((d) => d._id === id);
-    return diveObj;
-  };
-
-  const updateDive = (id, reqBody) => {
-    // localStorage.setItem("selected", null);
-    axios
-      .put(`http://localhost:5000/api/v1/dives/${id}`, reqBody, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          // localStorage.setItem("selected", JSON.stringify(response.data.data));
-          return response.data.data;
-        }
-      })
-      .catch((err) => console.log(`Problem updating dive. ${err}`));
-  };
 
   let routes;
 
   if (token && user) {
-    routes = (
+    // isLoadingDives
+    routes = isLoadingDives ? (
+      <div className="loading-container">
+        <CircularProgress />
+      </div>
+    ) : (
       <DiveContext.Provider
         value={{
           dives: dives,
-          selected: null,
+          refreshContextDives: getAllDives,
+          refreshDiveData: getAllDives,
           deleteDive: deleteDive,
-          selectDive: selectDive,
-          updateDive: updateDive,
+          // selectDive: selectDive,
+          // updateDive: updateDive,
           getDive: getDive,
         }}
       >
@@ -171,17 +165,17 @@ const App = () => {
               <DiveDashboard />
             </main>
           </Route>
-          <Route path="/dives/new" exact>
+          <Route path="/dives/add" exact>
             <main>
               <AddDiveForm />
             </main>
           </Route>
-          <Route path="/dives/view/:diveId" exact>
+          <Route path="/dives/:diveId/view" exact>
             <main>
               <ViewDive />
             </main>
           </Route>
-          <Route path="/dives/edit/:diveId" exact>
+          <Route path="/dives/:diveId/edit" exact>
             <main>
               <EditDive />
             </main>
@@ -204,11 +198,7 @@ const App = () => {
   }
 
   useEffect(() => {
-    // getAllDives();
-    console.log("token: ", token);
-    console.log("user: ", user);
     if (token && user) {
-      console.log("dives.length: ", dives.length);
       axios({
         method: "get",
         url: "http://localhost:5000/api/v1/dives",

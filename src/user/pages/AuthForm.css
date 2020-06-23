@@ -13,3 +13,26 @@
 .authentication form {
   margin-bottom: 1rem;
 }
+
+.authentication form > div {
+  width: 100%;
+}
+
+.authentication form .button-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.authentication form .button-wrapper > button {
+  margin: 1em 0 0 0;
+}
+
+.authentication form .button-wrapper > button:first-of-type {
+  width: 100%;
+}
+
+.authentication form .button-wrapper > button:nth-of-type(2) {
+  text-align: right;
+}

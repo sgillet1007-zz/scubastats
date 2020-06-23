@@ -22,6 +22,7 @@ import { Map, Marker, Tooltip, TileLayer } from "react-leaflet";
 import "./AddDiveForm.css";
 import diveSiteIcon from "../../dive-marker-grey@2x.png";
 import pickedSiteIcon from "../../dive-marker@2x.png";
+import { DiveContext } from "../../shared/context/dive-context.js";
 
 const parseTimeInputValue = (rawVal) => {
   // f.e. format "12:25" => b.e. format 1225
@@ -35,10 +36,10 @@ const renderCustomMarker = (pickedLocation) =>
   });
 
 const initialInputState = {
-  diveSite: {
-    value: "",
-    isValid: false,
-  },
+  // diveSite: {
+  //   value: "",
+  //   isValid: false,
+  // },
   date: {
     value: "",
     isValid: false,
@@ -51,14 +52,14 @@ const initialInputState = {
     value: "",
     isValid: false,
   },
-  lat: {
-    value: "",
-    isValid: false,
-  },
-  lng: {
-    value: "",
-    isValid: false,
-  },
+  // lat: {
+  //   value: "",
+  //   isValid: false,
+  // },
+  // lng: {
+  //   value: "",
+  //   isValid: false,
+  // },
   maxDepth: {
     value: "",
     isValid: false,
@@ -109,7 +110,7 @@ const initialInputState = {
   },
   weightUsed: {
     value: 5,
-    isvalid: true,
+    isValid: true,
   },
   diveComputer: {
     value: "console",
@@ -127,6 +128,7 @@ const initialInputState = {
 
 const AddDiveForm = () => {
   const auth = useContext(AuthContext);
+  const dContext = useContext(DiveContext);
   const authJsonHeader = {
     "Content-Type": "application/json",
     Authorization: "Bearer " + auth.token,
@@ -137,7 +139,7 @@ const AddDiveForm = () => {
   const [diveSites, setDiveSites] = useState([]);
   const [pickedSite, setPickedSite] = useState({});
 
-  const [formState, inputHandler, setFormData] = useForm(
+  const [formState, inputHandler, setFormData, resetForm] = useForm(
     initialInputState,
     false
   );
@@ -206,11 +208,18 @@ const AddDiveForm = () => {
           headers: authJsonHeader,
         }
       )
-      .then(() => {
-        setFormData(initialInputState, false);
-        // TODO - navigate back to dashboard or reset form
+      .then((response) => {
+        console.log("response: ", response);
+        if (response.status === 201 || response.satus === 200) {
+          dContext.refreshDiveData();
+          setPickedSite({});
+          window.location.reload(); // not ideal: TODO - refactor controlled input value state to be stored in this component
+        }
       })
-      .catch((err) => console.log(`Problem adding new dive. ${err}`));
+      .catch((err) => {
+        alert(`Problem adding new dive. ${err}`);
+        console.log(`Problem adding new dive. ${err}`);
+      });
   };
 
   return (
@@ -221,7 +230,7 @@ const AddDiveForm = () => {
       </h1>
       <hr />
       {formState.inputs.psiIn.value === 3000 && (
-        <form onSubmit={addDiveSubmitHandler}>
+        <form id="add-dive-form" onSubmit={addDiveSubmitHandler}>
           <div className="display-group">
             <div className="left-group">
               {!pickedSite.siteName && (
@@ -256,18 +265,6 @@ const AddDiveForm = () => {
                           key={`${d.siteName}${Math.random()}`}
                           icon={renderCustomMarker()}
                           onClick={() => {
-                            setFormData(
-                              {
-                                ...formState.inputs,
-                                diveSite: {
-                                  value: d.siteName,
-                                  isValid: true,
-                                },
-                                lat: { value: d.lat, isValid: true },
-                                lng: { value: d.lng, isValid: true },
-                              },
-                              formState.isValid
-                            );
                             setPickedSite({
                               siteName: d.siteName,
                               lat: d.lat,
@@ -312,6 +309,7 @@ const AddDiveForm = () => {
                 errorText="required"
                 onInput={inputHandler}
                 initialValue={formState.inputs.date.value}
+                initialValid={false}
               />
             </div>
           </div>
@@ -521,7 +519,7 @@ const AddDiveForm = () => {
           <div className="display-group">
             <Button
               type="submit"
-              disabled={!pickedSite.siteName && !formState.isValid}
+              disabled={!pickedSite.siteName || formState.isValid === false}
             >
               Log it!
             </Button>

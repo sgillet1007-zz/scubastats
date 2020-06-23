@@ -7,7 +7,7 @@
   align-content: space-around;
   justify-content: space-around;
   flex-wrap: wrap;
-  min-height: 250px;
+  min-height: 150px;
 }
 
 .display-group .left-group,
