@@ -52,7 +52,7 @@ const AuthForm = () => {
     e.preventDefault();
     if (isLoginMode) {
       axios
-        .post("http://localhost:5000/api/v1/auth/login", {
+        .post("https://scuba-logbook-api.herokuapp.com/api/v1/auth/login", {
           email: formState.inputs.email.value,
           password: formState.inputs.password.value,
         })
@@ -71,7 +71,7 @@ const AuthForm = () => {
         );
     } else if (!isLoginMode) {
       axios
-        .post("http://localhost:5000/api/v1/auth/register", {
+        .post("https://scuba-logbook-api.herokuapp.com/api/v1/auth/register", {
           name: formState.inputs.name.value,
           email: formState.inputs.email.value,
           password: formState.inputs.password.value,

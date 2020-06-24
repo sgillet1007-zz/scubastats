@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import Paper from "@material-ui/core/Paper";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import { Alert, AlertTitle } from "@material-ui/lab";
 import axios from "axios";
 import { Map, Marker, Tooltip, TileLayer } from "react-leaflet";
 import Input from "../../shared/components/FormElements/Input.js";

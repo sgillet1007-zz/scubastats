@@ -20,7 +20,6 @@ const ViewDive = () => {
 
   useEffect(() => {
     let diveData = null;
-
     axios({
       method: "get",
       url: `http://localhost:5000/api/v1/dives/${diveId}`,
@@ -34,7 +33,7 @@ const ViewDive = () => {
         setLoading(false);
       }
     });
-  }, []);
+  }, [diveId]);
 
   // NOTE - as in EditDive selected is null after screen refresh
   let diveNumber =

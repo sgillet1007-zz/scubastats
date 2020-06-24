@@ -58,13 +58,16 @@ const App = () => {
       });
   }, []);
 
-  const login = useCallback((user, token) => {
-    setToken(token);
-    setUser(user);
-    localStorage.setItem("bt", token);
-    localStorage.setItem("user", user);
-    getAllDives();
-  }, []);
+  const login = useCallback(
+    (user, token) => {
+      setToken(token);
+      setUser(user);
+      localStorage.setItem("bt", token);
+      localStorage.setItem("user", user);
+      getAllDives();
+    },
+    [getAllDives]
+  );
 
   const logout = useCallback(() => {
     setToken(null);
@@ -201,7 +204,7 @@ const App = () => {
         })
         .catch((err) => console.log(`Problem fetching dive data. ${err}`));
     }
-  }, []);
+  }, [token, user]);
 
   return (
     <AuthContext.Provider
