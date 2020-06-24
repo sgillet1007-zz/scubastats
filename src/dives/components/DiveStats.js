@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import Typography from '@material-ui/core/Typography';
-import { DiveContext } from '../../shared/context/dive-context';
+import React, { useContext } from "react";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
+import Typography from "@material-ui/core/Typography";
+import { DiveContext } from "../../shared/context/dive-context";
 
-import './DiveStats.css';
+import "./DiveStats.css";
 
 const getTotalHours = (dives) => {
   const durationArray = dives.map((d) => d.diveDuration);
@@ -29,44 +29,36 @@ const DiveStats = () => {
   const { dives } = dContext;
   return (
     <>
-      <Card className='stats-card'>
-        <CardContent>
-          <Typography variant='h5' component='h2'>
+      <Card className="stats-card">
+        <CardContent className="summary-card">
+          <Typography variant="h5" component="h2">
             {dives.length}
           </Typography>
-          <Typography color='textSecondary' gutterBottom>
-            Dives Logged
-          </Typography>
+          <Typography color="textSecondary">Dives Logged</Typography>
         </CardContent>
       </Card>
-      <Card className='stats-card'>
-        <CardContent>
-          <Typography variant='h5' component='h2'>
+      <Card className="stats-card">
+        <CardContent className="summary-card">
+          <Typography variant="h5" component="h2">
             {dives.length ? getTotalHours(dives) : 0}
           </Typography>
-          <Typography color='textSecondary' gutterBottom>
-            Hours Underwater
-          </Typography>
+          <Typography color="textSecondary">Hours Underwater</Typography>
         </CardContent>
       </Card>
-      <Card className='stats-card'>
-        <CardContent>
-          <Typography variant='h5' component='h2'>
+      <Card className="stats-card">
+        <CardContent className="summary-card">
+          <Typography variant="h5" component="h2">
             {`${dives.length ? getDeepestDive(dives) : 0} ft`}
           </Typography>
-          <Typography color='textSecondary' gutterBottom>
-            Deepest Dive
-          </Typography>
+          <Typography color="textSecondary">Deepest Dive</Typography>
         </CardContent>
       </Card>
-      <Card className='stats-card'>
-        <CardContent>
-          <Typography variant='h5' component='h2'>
+      <Card className="stats-card">
+        <CardContent className="summary-card">
+          <Typography variant="h5" component="h2">
             {`${dives.length ? getLongest(dives) : 0} mins`}
           </Typography>
-          <Typography color='textSecondary' gutterBottom>
-            Longest Dive
-          </Typography>
+          <Typography color="textSecondary">Longest Dive</Typography>
         </CardContent>
       </Card>
     </>

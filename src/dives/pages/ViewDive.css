@@ -2,12 +2,30 @@
   padding: 1em;
   margin-top: 6em;
 }
+
+.header-underline {
+  background-color: #009cf6;
+  height: 3px;
+}
+.divider-underline {
+  background-color: #a1f7f8;
+  height: 2px;
+  width: 95%;
+  margin: 0 auto;
+}
+
+.view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .display-group {
   display: flex;
   align-content: space-around;
   justify-content: space-around;
   flex-wrap: wrap;
   min-height: 150px;
+  padding: 1.5em;
 }
 
 .display-group .left-group,

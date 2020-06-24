@@ -8,6 +8,7 @@ import { Map, Marker, Popup, TileLayer } from "react-leaflet";
 import { DiveContext } from "../../shared/context/dive-context";
 import axios from "axios";
 import { renderCustomMarker } from "../../shared/utils/maputils";
+import { InfoGroup } from "../components/InfoGroup.js";
 import Button from "../../shared/components/FormElements/Button";
 import "./ViewDive.css";
 
@@ -48,16 +49,18 @@ const ViewDive = () => {
         </div>
       ) : (
         <Paper className="dive-view">
-          <h1 style={{ color: "#aaa" }}>
-            {`Viewing Dive ${diveNumber || ""} : `}
-            <small style={{ color: "#aaa" }}>
-              {`${selected.diveSite} on ${selected.date}`}
-            </small>
-          </h1>
-          <Link to={`/dives/${selected._id}/edit`}>
-            <Button>Edit</Button>
-          </Link>
-          <hr />
+          <div className="view-header">
+            <h1 style={{ color: "#aaa" }}>
+              {`Viewing Dive ${diveNumber || ""} : `}
+              <small style={{ color: "#aaa" }}>
+                {`${selected.diveSite} on ${selected.date}`}
+              </small>
+            </h1>
+            <Link to={`/dives/${selected._id}/edit`}>
+              <Button>Edit</Button>
+            </Link>
+          </div>
+          <div className="header-underline"></div>
           <div className="display-group">
             <div className="left-group">
               <div className="map-container">
@@ -84,50 +87,55 @@ const ViewDive = () => {
               </div>
             </div>
             <div className="right-group">
-              <div>{`Dive Site: ${selected.diveSite}`}</div>
-              <div>{`Date: ${selected.date}`}</div>
-              <div>{`Latitude: ${selected.coords.lat}`}</div>
-              <div>{`Longitude: ${selected.coords.lng}`}</div>
+              <InfoGroup title="Dive Site" info={selected.diveSite} />
+              <InfoGroup title="Date" info={selected.date} />
+              <InfoGroup title="Latitude" info={selected.coords.lat} />
+              <InfoGroup title="Longitude" info={selected.coords.lng} />
             </div>
           </div>
-          <hr />
-          <div className="display-group">
-            <div className="left-group grey">
-              <div>{`Time In: ${selected.timeIn}`}</div>
-              <div>{`Time Out: ${selected.timeOut}`}</div>
-              <div>{`Max. Depth: ${selected.maxDepth} ft`}</div>
-            </div>
-            <div className="right-group">
-              <div>{`Air In: ${selected.psiIn || "-"} psi`}</div>
-              <div>{`Air Out: ${selected.psiOut || "-"} psi`}</div>
-              <div>{`Gas Type: ${selected.gasType}`}</div>
-            </div>
-          </div>
-          <hr />
+          <div className="divider-underline"></div>
           <div className="display-group">
             <div className="left-group">
-              <div>{`Dive Type: ${selected.diveType}`}</div>
-              <div>{`Day/Night: ${selected.dayOrNight}`}</div>
-              <div>{`Water Temp.: ${selected.waterTemp}℉`}</div>
-              <div>{`Water Type: ${selected.waterType}`}</div>
+              <InfoGroup title="Time In" info={selected.timeIn} />
+              <InfoGroup title="Time Out" info={selected.timeOut} />
+              <InfoGroup title="Max Depth" info={`${selected.maxDepth} ft`} />
             </div>
             <div className="right-group">
-              <div>{`Visibility: ${selected.visibility || ""} ft`}</div>
-              <div>{`Current: ${selected.current}`}</div>
-              <div>{`Waves: ${selected.waves}`}</div>
+              <InfoGroup title="Air In" info={`${selected.psiIn} psi`} />
+              <InfoGroup title="Air Out" info={`${selected.psiOut} psi`} />
+              <InfoGroup title="Gas Type" info={selected.gasType} />
             </div>
           </div>
-          <hr />
+          <div className="divider-underline"></div>
           <div className="display-group">
             <div className="left-group">
-              <div>{`Exposure Suit: ${selected.suitType}`}</div>
-              <div>{`Weights Used: ${selected.weightUsed || "-"} lbs`}</div>
-              <div>{`Computer Used: ${selected.diveComputer || "-"}`}</div>
+              <InfoGroup title="Dive Type" info={selected.diveType} />
+              <InfoGroup title="Day/Night" info={selected.dayOrNight} />
+              <InfoGroup title="Water Temp." info={`${selected.waterTemp}℉`} />
             </div>
             <div className="right-group">
-              <div>{`Dive Buddy: ${selected.buddy || "n/a"}`}</div>
-              <div>{`Notes:`}</div>
-              <p>{selected.notes}</p>
+              <InfoGroup title="Water Type" info={selected.waterType} />
+              <InfoGroup
+                title="Visibility"
+                info={`${selected.visibility} ft`}
+              />
+              <InfoGroup title="Current" info={selected.current} />
+              <InfoGroup title="Waves" info={selected.waves} />
+            </div>
+          </div>
+          <div className="divider-underline"></div>
+          <div className="display-group">
+            <div className="left-group">
+              <InfoGroup title="Exposure Suit" info={selected.suitType} />
+              <InfoGroup
+                title="Weights Used"
+                info={`${selected.weightUsed} lbs`}
+              />
+              <InfoGroup title="Computer Used" info={selected.diveComputer} />
+            </div>
+            <div className="right-group">
+              <InfoGroup title="Dive Buddy" info={selected.buddy} />
+              <InfoGroup textarea title="Notes" info={selected.notes} />
             </div>
           </div>
         </Paper>

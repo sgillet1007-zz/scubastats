@@ -4,10 +4,15 @@
 }
 
 .authentication {
-  width: 90%;
-  max-width: 25rem;
-  margin: 7rem auto;
-  text-align: center;
+  height: 80vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.authentication .card {
+  padding: 2rem;
 }
 
 .authentication form {

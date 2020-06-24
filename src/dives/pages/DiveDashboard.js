@@ -2,6 +2,7 @@ import React from "react";
 import DiveMap from "../components/DiveMap";
 import DiveTable from "../components/DiveTable";
 import DiveStats from "../components/DiveStats";
+import DataVizCharts from "../components/DataVizCharts";
 
 import "./DiveDashboard.css";
 
@@ -18,6 +19,9 @@ const DiveDashboard = () => {
         <div className="map-panel">
           <DiveMap />
         </div>
+      </section>
+      <section className="charts-section">
+        <DataVizCharts />
       </section>
     </>
   );

@@ -18,6 +18,12 @@ main {
 
 main section {
   width: 100%;
+  min-height: 600px;
+}
+main section.charts-section {
+  width: 99%;
+  margin: 0 auto;
+  margin-top: 1rem;
 }
 
 .loading-container {

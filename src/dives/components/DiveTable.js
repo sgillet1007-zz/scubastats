@@ -79,7 +79,7 @@ const useStyles = makeStyles({
     width: "100%",
   },
   container: {
-    maxHeight: 440,
+    maxHeight: 550,
   },
 });
 
@@ -131,7 +131,6 @@ const DiveTable = () => {
           <TableBody>
             {rows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              // .reverse()
               .map((row) => {
                 return (
                   <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>

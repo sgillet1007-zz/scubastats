@@ -7,23 +7,28 @@ import "./DiveTableActions.css";
 
 import { DiveContext } from "../../shared/context/dive-context";
 
+import Swal from "sweetalert2";
+
 const DiveTableActions = (props) => {
   const dContext = useContext(DiveContext);
   const { dataid } = props;
 
   const deleteClickHandler = (e) => {
-    // TODO refactor with material component/modal
-    let deleteConfirmed = window.confirm(
-      "Are you sure you want to delete this dive?"
-    );
-    if (deleteConfirmed) {
-      dContext.deleteDive(dataid);
-    }
+    Swal.fire({
+      title: "Are you sure?",
+      text:
+        "This action can't be undone. You're about to delete this dive from your logbook.",
+      icon: "warning",
+      confirmButtonText: "Yes, delete it!",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dContext.deleteDive(dataid);
+      }
+    });
   };
-
-  // const updateSelectedDive = (e) => {
-  //   dContext.selected = dContext.selectDive(dataid, dContext.dives);
-  // };
 
   return (
     <div className="dive-action-container">
@@ -35,7 +40,6 @@ const DiveTableActions = (props) => {
           className="dive-action-icon"
           fontSize="small"
           color="primary"
-          // onClick={updateSelectedDive}
           focusable={true}
         />
       </Link>
@@ -47,7 +51,6 @@ const DiveTableActions = (props) => {
           className="dive-action-icon"
           fontSize="small"
           color="action"
-          // onClick={updateSelectedDive}
           focusable={true}
         />
       </Link>

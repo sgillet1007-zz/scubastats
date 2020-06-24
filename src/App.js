@@ -26,6 +26,7 @@ const App = () => {
   const [isLoadingDives, setIsLoadingDives] = useState(false);
 
   const getAllDives = useCallback(() => {
+    // default pagination limit on api is 200 dives
     setIsLoadingDives(true);
     axios({
       method: "get",
@@ -72,27 +73,6 @@ const App = () => {
     localStorage.removeItem("user");
   }, []);
 
-  const getDive = useCallback(
-    (id) => {
-      const diveFromState = dives.filter((d) => d._id === id);
-      if (diveFromState.length) {
-        return diveFromState;
-      }
-      axios({
-        method: "get",
-        url: `http://localhost:5000/api/v1/dives/${id}`,
-        headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
-      }).then((response) => {
-        if (response.status === 200) {
-          console.log("axios fetch dive data: ", response.data.data);
-          return response.data.data;
-        }
-      });
-    },
-    [dives]
-  );
-
-  // helper for calculating diveDuration
   const calcDiveDuration = (timeIn, timeOut) => {
     const inHour = Math.floor(timeIn / 100);
     const outHour = Math.floor(timeOut / 100);
@@ -154,9 +134,6 @@ const App = () => {
           refreshContextDives: getAllDives,
           refreshDiveData: getAllDives,
           deleteDive: deleteDive,
-          // selectDive: selectDive,
-          // updateDive: updateDive,
-          getDive: getDive,
         }}
       >
         <Switch>

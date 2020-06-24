@@ -15,116 +15,15 @@ import {
   VALIDATOR_MAXLENGTH,
 } from "../../shared/utils/validators";
 import { AuthContext } from "../../shared/context/auth-context";
+import { DiveContext } from "../../shared/context/dive-context.js";
 import { useForm } from "../../shared/hooks/form-hook";
 import Paper from "@material-ui/core/Paper";
-import { icon, Point } from "leaflet";
 import { Map, Marker, Tooltip, TileLayer } from "react-leaflet";
+import Swal from "sweetalert2";
+import { parseTimeInputValue } from "../../shared/utils/transforms";
+import { renderCustomMarker } from "../../shared/utils/maputils";
+import { getIntialDiveFormValues } from "../../shared/utils/formutils";
 import "./AddDiveForm.css";
-import diveSiteIcon from "../../dive-marker-grey@2x.png";
-import pickedSiteIcon from "../../dive-marker@2x.png";
-import { DiveContext } from "../../shared/context/dive-context.js";
-
-const parseTimeInputValue = (rawVal) => {
-  // f.e. format "12:25" => b.e. format 1225
-  return parseInt(rawVal.replace(":", ""));
-};
-
-const renderCustomMarker = (pickedLocation) =>
-  new icon({
-    iconUrl: pickedLocation ? pickedSiteIcon : diveSiteIcon,
-    iconSize: new Point(8, 8),
-  });
-
-const initialInputState = {
-  // diveSite: {
-  //   value: "",
-  //   isValid: false,
-  // },
-  date: {
-    value: "",
-    isValid: false,
-  },
-  timeIn: {
-    value: "",
-    isValid: false,
-  },
-  timeOut: {
-    value: "",
-    isValid: false,
-  },
-  // lat: {
-  //   value: "",
-  //   isValid: false,
-  // },
-  // lng: {
-  //   value: "",
-  //   isValid: false,
-  // },
-  maxDepth: {
-    value: "",
-    isValid: false,
-  },
-  psiIn: {
-    value: 3000,
-    isValid: true,
-  },
-  psiOut: {
-    value: 500,
-    isValid: true,
-  },
-  gasType: {
-    value: "air",
-    isValid: true,
-  },
-  diveType: {
-    value: "boat",
-    isValid: true,
-  },
-  dayOrNight: {
-    value: "day",
-    isValid: true,
-  },
-  waterTemp: {
-    value: 75,
-    isValid: true,
-  },
-  waterType: {
-    value: "salt",
-    isValid: true,
-  },
-  visibility: {
-    value: 40,
-    isValid: true,
-  },
-  current: {
-    value: "none",
-    isValid: true,
-  },
-  waves: {
-    value: "calm",
-    isValid: true,
-  },
-  suitType: {
-    value: "3mm wetsuit",
-    isValid: true,
-  },
-  weightUsed: {
-    value: 5,
-    isValid: true,
-  },
-  diveComputer: {
-    value: "console",
-    isValid: true,
-  },
-  buddy: {
-    value: "divemaster",
-    isValid: true,
-  },
-  notes: {
-    value: "Another great dive!",
-    isValid: true,
-  },
-};
 
 const AddDiveForm = () => {
   const auth = useContext(AuthContext);
@@ -139,8 +38,8 @@ const AddDiveForm = () => {
   const [diveSites, setDiveSites] = useState([]);
   const [pickedSite, setPickedSite] = useState({});
 
-  const [formState, inputHandler, setFormData, resetForm] = useForm(
-    initialInputState,
+  const [formState, inputHandler, setFormData] = useForm(
+    getIntialDiveFormValues(),
     false
   );
 
@@ -182,7 +81,7 @@ const AddDiveForm = () => {
   }, []);
 
   useEffect(() => {
-    setFormData(initialInputState, false);
+    setFormData(getIntialDiveFormValues(), false);
   }, [setFormData]);
 
   const addDiveSubmitHandler = (e) => {
@@ -209,11 +108,21 @@ const AddDiveForm = () => {
         }
       )
       .then((response) => {
-        console.log("response: ", response);
         if (response.status === 201 || response.satus === 200) {
           dContext.refreshDiveData();
-          setPickedSite({});
-          window.location.reload(); // not ideal: TODO - refactor controlled input value state to be stored in this component
+          Swal.fire({
+            title: "Congratulations!",
+            text: "You just logged another dive.",
+            icon: "success",
+            confirmButtonText: "Boom",
+            confirmButtonColor: "#3085d6",
+          }).then((result) => {
+            console.log("result: ", result);
+            if (result.isConfirmed === true) {
+              setPickedSite({});
+              window.location.reload(); // not ideal: TODO - refactor controlled input value state to be stored in this component
+            }
+          });
         }
       })
       .catch((err) => {

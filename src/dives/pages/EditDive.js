@@ -12,6 +12,7 @@ import axios from "axios";
 import { Map, Marker, Tooltip, TileLayer } from "react-leaflet";
 import Input from "../../shared/components/FormElements/Input.js";
 import Button from "../../shared/components/FormElements/Button";
+import Swal from "sweetalert2";
 
 import {
   VALIDATOR_REQUIRE,
@@ -24,6 +25,7 @@ import {
   convertTimeVal,
 } from "../../shared/utils/transforms";
 import { renderCustomMarker } from "../../shared/utils/maputils";
+import { getIntialDiveFormValues } from "../../shared/utils/formutils";
 import { DiveContext } from "../../shared/context/dive-context";
 import { useForm } from "../../shared/hooks/form-hook";
 
@@ -41,17 +43,10 @@ const EditDive = (props) => {
 
   const [updating, setUpdating] = useState(false);
 
-  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-  const [showErrorAlert, setShowErrorAlert] = useState(false);
-
-  let initialInputValues;
-
-  const [
-    formState,
-    inputHandler,
-    setFormData,
-    createInitialFormValues,
-  ] = useForm(initialInputValues, true);
+  const [formState, inputHandler, setFormData] = useForm(
+    getIntialDiveFormValues(),
+    true
+  );
 
   const initialInputChangeStatus = {
     diveSite: false,
@@ -148,7 +143,8 @@ const EditDive = (props) => {
     dContext.dives.length &&
     dContext.dives.find((d) => d._id === diveId).diveNumber;
 
-  const clearLocationHandler = () => {
+  const clearLocationHandler = (e) => {
+    e.preventDefault();
     setPickedSite(null);
   };
 
@@ -163,7 +159,7 @@ const EditDive = (props) => {
       .then((response) => {
         if (response.status === 200) {
           diveData = response.data.data;
-          setFormData(createInitialFormValues(diveData), formState.isValid);
+          setFormData(getIntialDiveFormValues(diveData), formState.isValid);
           setPickedSite({
             siteName: diveData.diveSite,
             lat: diveData.coords.lat,
@@ -175,7 +171,7 @@ const EditDive = (props) => {
         }
       })
       .catch((err) => console.log(err));
-  }, [createInitialFormValues, diveId, formState.isValid, setFormData]);
+  }, [diveId, formState.isValid, setFormData]);
 
   const updateDiveSubmitHandler = async (e) => {
     e.preventDefault();
@@ -193,7 +189,7 @@ const EditDive = (props) => {
     }
 
     if (pickedSite) {
-      requestBody.siteName = pickedSite.siteName;
+      requestBody.diveSite = pickedSite.siteName;
       requestBody.coords = { lat: pickedSite.lat, lng: pickedSite.lng };
     }
 
@@ -203,20 +199,30 @@ const EditDive = (props) => {
       })
       .then((response) => {
         if (response.status === 200) {
-          setShowSuccessAlert(true);
-          setTimeout(() => {
-            setShowSuccessAlert(false);
-          }, 1500);
-          setUpdating(false);
-          dContext.refreshContextDives();
+          Swal.fire({
+            title: "Dive Details Saved!",
+            text: "Details have been saved to the database.",
+            icon: "success",
+            confirmButtonText: "Ok",
+            confirmButtonColor: "#3085d6",
+          }).then((result) => {
+            setUpdating(false);
+            dContext.refreshContextDives();
+          });
         }
       })
       .catch((err) => {
-        setShowErrorAlert(true);
-        setTimeout(() => {
-          setShowErrorAlert(false);
-        }, 1500);
         console.log(`Problem updating dive. ${err}`);
+        Swal.fire({
+          title: "Oops...",
+          text: `Problem saving dive details. <br/> ${err}`,
+          icon: "error",
+          confirmButtonText: "Ok",
+          confirmButtonColor: "#3085d6",
+        }).then((result) => {
+          setUpdating(false);
+          dContext.refreshContextDives();
+        });
         setUpdating(false);
       });
   };
@@ -535,13 +541,6 @@ const EditDive = (props) => {
                 {updating ? "Updating..." : "Save"}
               </Button>
             </div>
-
-            <Alert
-              className={showSuccessAlert ? "my-alert open" : "my-alert"}
-              severity="success"
-            >
-              <AlertTitle>Dive Saved!</AlertTitle>
-            </Alert>
           </form>
         </Paper>
       )}

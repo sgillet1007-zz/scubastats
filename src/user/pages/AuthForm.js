@@ -93,52 +93,54 @@ const AuthForm = () => {
   };
 
   return (
-    <Card className="authentication">
-      <h2>{isLoginMode ? "Please Login" : "New Account"}</h2>
-      <hr />
-      <form onSubmit={authSubmitHandler}>
-        {!isLoginMode && (
+    <div className="authentication">
+      <Card>
+        <h2>{isLoginMode ? "Please Login" : "New Account"}</h2>
+        <hr />
+        <form onSubmit={authSubmitHandler}>
+          {!isLoginMode && (
+            <Input
+              id="name"
+              className="input-wrapper"
+              element="input"
+              type="text"
+              label="Your Name"
+              validators={[VALIDATOR_REQUIRE()]}
+              errorText="Please enter your name"
+              onInput={inputHandler}
+            />
+          )}
           <Input
-            id="name"
+            id="email"
             className="input-wrapper"
             element="input"
             type="text"
-            label="Your Name"
-            validators={[VALIDATOR_REQUIRE()]}
-            errorText="Please enter your name"
+            label="Email"
+            validators={[VALIDATOR_EMAIL()]}
+            errorText="Please enter a valid email"
             onInput={inputHandler}
           />
-        )}
-        <Input
-          id="email"
-          className="input-wrapper"
-          element="input"
-          type="text"
-          label="Email"
-          validators={[VALIDATOR_EMAIL()]}
-          errorText="Please enter a valid email"
-          onInput={inputHandler}
-        />
-        <Input
-          id="password"
-          element="input"
-          type="password"
-          label="Password"
-          validators={[VALIDATOR_MINLENGTH(6)]}
-          errorText="Please enter a valid password (at least 6 characters)"
-          onInput={inputHandler}
-        />
-        <br />
-        <div className="button-wrapper">
-          <Button type="submit" disabled={!formState.isValid}>
-            {isLoginMode ? "Login" : "Sign Up"}
-          </Button>
-          <Button inverse noborder onClick={switchModeHandler}>
-            {isLoginMode ? "Need an account?" : "Back to user login"}
-          </Button>
-        </div>
-      </form>
-    </Card>
+          <Input
+            id="password"
+            element="input"
+            type="password"
+            label="Password"
+            validators={[VALIDATOR_MINLENGTH(6)]}
+            errorText="Please enter a valid password (at least 6 characters)"
+            onInput={inputHandler}
+          />
+          <br />
+          <div className="button-wrapper">
+            <Button type="submit" disabled={!formState.isValid}>
+              {isLoginMode ? "Login" : "Sign Up"}
+            </Button>
+            <Button inverse noborder onClick={switchModeHandler}>
+              {isLoginMode ? "Need an account?" : "Back to user login"}
+            </Button>
+          </div>
+        </form>
+      </Card>
+    </div>
   );
 };
 

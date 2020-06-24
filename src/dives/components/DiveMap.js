@@ -1,17 +1,10 @@
 import React, { useContext } from "react";
 import Paper from "@material-ui/core/Paper";
-import { icon, Point } from "leaflet";
 import { Map, Marker, Tooltip, TileLayer } from "react-leaflet";
-import diveIcon from "../../dive-marker.png";
 import { DiveContext } from "../../shared/context/dive-context";
+import { renderCustomMarker } from "../../shared/utils/maputils";
 
 import "./DiveMap.css";
-
-const renderCustomMarker = () =>
-  new icon({
-    iconUrl: diveIcon,
-    iconSize: new Point(8, 8),
-  });
 
 const DiveMap = () => {
   const dContext = useContext(DiveContext);
@@ -32,7 +25,7 @@ const DiveMap = () => {
             return (
               <Marker
                 position={[d.coords.lat, d.coords.lng]}
-                icon={renderCustomMarker()}
+                icon={renderCustomMarker(true)}
                 key={`${d.name}${Math.random()}`}
               >
                 <Tooltip>

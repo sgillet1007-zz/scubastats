@@ -1,0 +1,20 @@
+.info-group {
+  box-shadow: #f7f7f7 2px 2px 2px;
+  height: 2.5rem;
+  margin: 0.5rem;
+  padding-left: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 1.1em;
+}
+
+.textarea {
+  flex-direction: column;
+  align-items: flex-start;
+  height: 8rem;
+}
+
+.info-group .info-title {
+  margin-right: 1rem;
+}
