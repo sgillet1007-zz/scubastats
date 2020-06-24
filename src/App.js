@@ -30,7 +30,7 @@ const App = () => {
     setIsLoadingDives(true);
     axios({
       method: "get",
-      url: "http://localhost:5000/api/v1/dives",
+      url: "https://scuba-logbook-api.herokuapp.com/api/v1/dives",
       headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
     })
       .then((response) => {
@@ -100,7 +100,7 @@ const App = () => {
 
   const deleteDive = (id) => {
     axios
-      .delete(`http://localhost:5000/api/v1/dives/${id}`, {
+      .delete(`https://scuba-logbook-api.herokuapp.com/api/v1/dives/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
       })
       .then((response) => {
@@ -181,7 +181,7 @@ const App = () => {
     if (token && user) {
       axios({
         method: "get",
-        url: "http://localhost:5000/api/v1/dives",
+        url: "https://scuba-logbook-api.herokuapp.com/api/v1/dives",
         headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
       })
         .then((response) => {

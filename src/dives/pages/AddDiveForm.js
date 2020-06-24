@@ -58,7 +58,7 @@ const AddDiveForm = () => {
 
   const fetchAndSetDiveSitesOnMap = useCallback(() => {
     axios
-      .get("http://localhost:5000/api/v1/divesites")
+      .get("https://scuba-logbook-api.herokuapp.com/api/v1/divesites")
       .then((response) => {
         if (response.status === 200) {
           let sitesWithinMapBounds = response.data.results.filter((ds) => {
@@ -90,7 +90,7 @@ const AddDiveForm = () => {
     const parsedTimeOut = parseTimeInputValue(formState.inputs.timeOut.value);
     axios
       .post(
-        "http://localhost:5000/api/v1/dives",
+        "https://scuba-logbook-api.herokuapp.com/api/v1/dives",
         {
           diveSite: pickedSite.siteName,
           date: formState.inputs.date.value,

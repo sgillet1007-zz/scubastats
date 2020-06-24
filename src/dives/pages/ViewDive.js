@@ -22,7 +22,7 @@ const ViewDive = () => {
     let diveData = null;
     axios({
       method: "get",
-      url: `http://localhost:5000/api/v1/dives/${diveId}`,
+      url: `https://scuba-logbook-api.herokuapp.com/api/v1/dives/${diveId}`,
       headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
     }).then((response) => {
       if (response.status === 200) {
@@ -87,9 +87,9 @@ const ViewDive = () => {
             </div>
             <div className="right-group">
               <InfoGroup title="Dive Site" info={selected.diveSite} />
-              <InfoGroup title="Date" info={selected.date} />
               <InfoGroup title="Latitude" info={selected.coords.lat} />
               <InfoGroup title="Longitude" info={selected.coords.lng} />
+              <InfoGroup title="Date" info={selected.date} />
             </div>
           </div>
           <div className="divider-underline"></div>

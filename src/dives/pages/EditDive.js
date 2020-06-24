@@ -12,6 +12,7 @@ import { Map, Marker, Tooltip, TileLayer } from "react-leaflet";
 import Input from "../../shared/components/FormElements/Input.js";
 import Button from "../../shared/components/FormElements/Button";
 import Swal from "sweetalert2";
+import { InfoGroup } from "../components/InfoGroup.js";
 
 import {
   VALIDATOR_REQUIRE,
@@ -114,7 +115,7 @@ const EditDive = (props) => {
 
   const fetchAndSetDiveSitesOnMap = useCallback(() => {
     axios
-      .get("http://localhost:5000/api/v1/divesites")
+      .get("https://scuba-logbook-api.herokuapp.com/api/v1/divesites")
       .then((response) => {
         if (response.status === 200) {
           let sitesWithinMapBounds = response.data.results.filter((ds) => {
@@ -152,7 +153,7 @@ const EditDive = (props) => {
 
     axios({
       method: "get",
-      url: `http://localhost:5000/api/v1/dives/${diveId}`,
+      url: `https://scuba-logbook-api.herokuapp.com/api/v1/dives/${diveId}`,
       headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
     })
       .then((response) => {
@@ -193,9 +194,13 @@ const EditDive = (props) => {
     }
 
     axios
-      .put(`http://localhost:5000/api/v1/dives/${diveId}`, requestBody, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
-      })
+      .put(
+        `https://scuba-logbook-api.herokuapp.com/api/v1/dives/${diveId}`,
+        requestBody,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("bt")}` },
+        }
+      )
       .then((response) => {
         if (response.status === 200) {
           Swal.fire({
@@ -241,9 +246,11 @@ const EditDive = (props) => {
               <div className="left-group">
                 {pickedSite === null && (
                   <>
-                    <div style={{ margin: "0 auto" }}>PICK A LOCATION</div>
                     <div style={{ margin: "0 auto" }}>
-                      Zoom in to load divesite locations
+                      PICK A LOCATION ON MAP
+                    </div>
+                    <div style={{ margin: "0 auto" }}>
+                      {`(Zoom in to load divesite locations)`}
                     </div>
                   </>
                 )}
@@ -292,9 +299,15 @@ const EditDive = (props) => {
                     )}
                   </Map>
                 </div>
+                <Button
+                  onClick={clearLocationHandler}
+                  disabled={!(pickedSite && pickedSite.siteName)}
+                >
+                  Clear Location
+                </Button>
               </div>
               <div className="right-group">
-                <div>
+                {/* <div>
                   <b>{`Dive Site: `}</b>
                   {`${(pickedSite && pickedSite.siteName) || "not specified"}`}
                 </div>
@@ -306,8 +319,22 @@ const EditDive = (props) => {
                 <div>
                   <b>{`Longitude: `}</b>
                   {`${(pickedSite && pickedSite.lng) || "not specified"}`}
-                </div>
-                <Button onClick={clearLocationHandler}>Clear Location</Button>
+                </div> */}
+                <InfoGroup
+                  title="Dive Site"
+                  info={`${
+                    (pickedSite && pickedSite.siteName) || "not specified"
+                  }`}
+                />
+                <InfoGroup
+                  title="Latitude"
+                  info={`${(pickedSite && pickedSite.lat) || "not specified"}`}
+                />
+                <InfoGroup
+                  title="Longitude"
+                  info={`${(pickedSite && pickedSite.lng) || "not specified"}`}
+                />
+
                 <Input
                   id="date"
                   element="input"
