@@ -3,3 +3,41 @@
   z-index: 1;
   border-radius: 5px;
 }
+.markerClusterLabel {
+  font-size: 0.7vw;
+  color: #fff;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.markerClusterSmall {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0e15bc;
+  padding: 10px;
+  border-radius: 50%;
+}
+.markerClusterMedium {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0e15bc;
+  padding: 15px;
+  border-radius: 50%;
+}
+.markerClusterLarge {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0e15bc;
+  padding: 17px;
+  border-radius: 50%;
+}
+.markerClusterLargeXL {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0e15bc;
+  padding: 20px;
+  border-radius: 50%;
+}

@@ -9,7 +9,7 @@ const DataVizCharts = () => {
   const dContext = useContext(DiveContext);
 
   useEffect(() => {
-    console.log("chartData: ", chartData);
+    // console.log("chartData: ", chartData);
   });
 
   let dives = dContext.dives;
@@ -39,7 +39,6 @@ const DataVizCharts = () => {
               margin={{ top: 50, right: 100, bottom: 50, left: 60 }}
               padding={0.3}
               groupMode="grouped"
-              //   colors={{ scheme: "nivo" }}
               defs={[
                 {
                   id: "dots",
