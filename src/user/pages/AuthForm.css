@@ -13,6 +13,7 @@
 
 .authentication .card {
   padding: 2rem;
+  width: 500px;
 }
 
 .authentication form {
@@ -40,4 +41,5 @@
 
 .authentication form .button-wrapper > button:nth-of-type(2) {
   text-align: right;
+  color: #0e15bc;
 }
