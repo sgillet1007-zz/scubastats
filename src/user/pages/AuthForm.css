@@ -4,16 +4,17 @@
 }
 
 .authentication {
-  height: 80vh;
-  width: 100vw;
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 80vh;
+  width: 100%;
 }
 
 .authentication .card {
   padding: 2rem;
   width: 500px;
+  max-width: 90%;
 }
 
 .authentication form {
