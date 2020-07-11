@@ -20,3 +20,8 @@
   min-width: 300px;
   min-height: 100%;
 }
+@media (max-width: 800px) {
+  section.charts-section {
+    display: none;
+  }
+}
