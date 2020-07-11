@@ -28,7 +28,7 @@ const DiveStats = () => {
   const dContext = useContext(DiveContext);
   const { dives } = dContext;
   return (
-    <>
+    <div class="stats-container">
       <Card className="stats-card">
         <CardContent className="summary-card">
           <Typography variant="h5" component="h2">
@@ -61,7 +61,7 @@ const DiveStats = () => {
           <Typography color="textSecondary">Longest Dive</Typography>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 };
 

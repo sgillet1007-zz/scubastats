@@ -15,16 +15,10 @@
 }
 
 .nav-links a {
-  color: white;
+  color: rgb(4, 4, 139);
 
   text-decoration: none;
   padding: 0.5rem;
-}
-
-.nav-links a:hover,
-.nav-links a:active,
-.nav-links a.active,
-.nav-links button:hover {
 }
 
 .nav-links a:active,
@@ -34,10 +28,11 @@
 
 .nav-links button {
   cursor: pointer;
-  color: white;
+  color: rgb(4, 4, 139);
   background: transparent;
   padding: 0.5rem;
   font: inherit;
+  border: none;
 }
 
 .nav-links button:focus {
@@ -59,13 +54,11 @@
 
   .nav-links a {
     text-decoration: none;
+    color: rgba(255, 255, 255, 0.7);
   }
 
   .nav-links button {
     border: none;
-  }
-
-  .nav-links button:hover,
-  .nav-links button:active {
+    color: rgba(255, 255, 255, 0.7);
   }
 }

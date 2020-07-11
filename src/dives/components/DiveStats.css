@@ -1,12 +1,33 @@
+.stats-section {
+  width: 100%;
+  min-height: 100px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.stats-container {
+  width: 100vw;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 20px;
+}
+
 .stats-card {
-  display: inline-block;
-  width: 150px;
+  width: 20%;
+  min-width: 125px;
+  max-width: 500px;
+  height: 108px;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  margin: 1rem;
+  margin: 0.5rem;
 }
 
 .stats-card p {

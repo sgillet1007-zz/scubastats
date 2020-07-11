@@ -21,9 +21,8 @@ main section {
   min-height: 600px;
 }
 main section.charts-section {
-  width: 99%;
+  width: 98%;
   margin: 0 auto;
-  margin-top: 1rem;
 }
 
 .loading-container {
@@ -49,4 +48,15 @@ main section.charts-section {
 main section div,
 .leaflet-container {
   z-index: 1;
+}
+
+footer {
+  height: 180px;
+  width: 100vw;
+  background: rgb(4, 4, 139);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
 }

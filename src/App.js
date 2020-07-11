@@ -24,6 +24,7 @@ const App = () => {
   const [user, setUser] = useState(localStorage.getItem("user") || "");
   const [dives, setDives] = useState([]);
   const [isLoadingDives, setIsLoadingDives] = useState(false);
+  const date = new Date();
 
   const getAllDives = useCallback(() => {
     // default pagination limit on api is 200 dives
@@ -213,6 +214,12 @@ const App = () => {
       <Router>
         <MainNavigation />
         {routes}
+        <footer>
+          <div>
+            <div>{`Scubastats`}</div>
+            <div>{`© ${date.getFullYear()} All rights reserved`}</div>
+          </div>
+        </footer>
       </Router>
     </AuthContext.Provider>
   );
