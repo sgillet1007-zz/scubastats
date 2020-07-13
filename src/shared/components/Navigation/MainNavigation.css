@@ -34,6 +34,15 @@
   height: 100%;
 }
 
+.wrapped-header {
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1600px;
+}
+
 @media (min-width: 768px) {
   .main-navigation__menu-btn {
     display: none;

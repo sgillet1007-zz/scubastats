@@ -33,24 +33,26 @@ const MainNavigation = () => {
       </SideDrawer>
 
       <MainHeader>
-        <h1 className="main-navigation__title">
-          <Link to="/">
-            <img src={logo} alt="logo" />
-          </Link>
-        </h1>
-        <nav className="main-navigation__header-nav">
-          <NavLinks />
-        </nav>
-        {authenticated && (
-          <button
-            className="main-navigation__menu-btn"
-            onClick={openDrawerHandler}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-        )}
+        <div className="wrapped-header">
+          <h1 className="main-navigation__title">
+            <Link to="/">
+              <img src={logo} alt="logo" />
+            </Link>
+          </h1>
+          <nav className="main-navigation__header-nav">
+            <NavLinks />
+          </nav>
+          {authenticated && (
+            <button
+              className="main-navigation__menu-btn"
+              onClick={openDrawerHandler}
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+          )}
+        </div>
       </MainHeader>
     </React.Fragment>
   );
