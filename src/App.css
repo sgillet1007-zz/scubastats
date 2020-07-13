@@ -6,7 +6,12 @@ body {
   min-height: 105vh;
   margin: 0;
   padding: 0;
-  background: rgb(250, 250, 249);
+  background: #fafaf9;
+}
+
+#root {
+  background-color: rgb(250, 252, 252);
+  background-image: url("./sand-bg.png");
 }
 
 main {
@@ -59,4 +64,10 @@ footer {
   align-items: center;
   text-align: center;
   color: rgba(255, 255, 255, 0.4);
+}
+
+.footer-logo-wrapper {
+  background: white;
+  border-radius: 50%;
+  margin: 15px;
 }

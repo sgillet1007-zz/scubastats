@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import logo from "../../../logo250x72.png";
 
 import MainHeader from "./MainHeader";
 import NavLinks from "./NavLinks";
@@ -18,6 +19,10 @@ const MainNavigation = () => {
     setDrawerIsOpen(false);
   };
 
+  const authToken = localStorage.getItem("bt") || null;
+  const user = localStorage.getItem("user") || null;
+  const authenticated = authToken && user;
+
   return (
     <React.Fragment>
       {drawerIsOpen && <Backdrop onClick={closeDrawerHandler} />}
@@ -29,19 +34,23 @@ const MainNavigation = () => {
 
       <MainHeader>
         <h1 className="main-navigation__title">
-          <Link to="/">ScubaStats</Link>
+          <Link to="/">
+            <img src={logo} alt="logo" />
+          </Link>
         </h1>
         <nav className="main-navigation__header-nav">
           <NavLinks />
         </nav>
-        <button
-          className="main-navigation__menu-btn"
-          onClick={openDrawerHandler}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
+        {authenticated && (
+          <button
+            className="main-navigation__menu-btn"
+            onClick={openDrawerHandler}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        )}
       </MainHeader>
     </React.Fragment>
   );

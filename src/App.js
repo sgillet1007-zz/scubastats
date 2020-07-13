@@ -16,6 +16,7 @@ import AddDiveForm from "./dives/pages/AddDiveForm";
 import ViewDive from "./dives/pages/ViewDive";
 import EditDive from "./dives/pages/EditDive";
 import { DiveContext } from "./shared/context/dive-context";
+import logo from "./logo250x72.png";
 
 import "./App.css";
 
@@ -212,14 +213,18 @@ const App = () => {
       value={{ token: token, user: user, login: login, logout: logout }}
     >
       <Router>
-        <MainNavigation />
-        {routes}
-        <footer>
-          <div>
-            <div>{`Scubastats`}</div>
-            <div>{`© ${date.getFullYear()} All rights reserved`}</div>
-          </div>
-        </footer>
+        <div className="auth-bg">
+          <MainNavigation />
+          {routes}
+          <footer>
+            <div>
+              <div className="footer-logo-wrapper">
+                <img src={logo} alt="logo" width="125" />
+              </div>
+              <div>{`© ${date.getFullYear()} All rights reserved`}</div>
+            </div>
+          </footer>
+        </div>
       </Router>
     </AuthContext.Provider>
   );
